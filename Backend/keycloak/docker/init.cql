@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS gps_data (
 ) WITH CLUSTERING ORDER BY (timestamp ASC);
 
 -- Table: User by Squad
-CREATE TABLE IF NOT EXISTS user_by_squad (
+CREATE TABLE IF NOT EXISTS users_by_squad (
     squad_id uuid,
     user_email TEXT,
     PRIMARY KEY (squad_id, user_email)
@@ -60,20 +60,20 @@ INSERT INTO gps_data (user_email, timestamp, latitude, longitude)
 VALUES ('user1@example.com', '2024-12-01 10:10:00', 40.7148, -74.0080);
 
 INSERT INTO gps_data (user_email, timestamp, latitude, longitude)
-VALUES ('testuser2@example.com', '2024-12-01 10:00:00', 34.0522, -118.2437);
+VALUES ('testuser2@example.com', '2023-12-01 10:00:00', 34.0522, -118.2437);
 
 INSERT INTO gps_data (user_email, timestamp, latitude, longitude)
 VALUES ('user2@example.com', '2024-12-01 10:05:00', 34.0532, -118.2447);
 
 
 -- Insert into User by Squad Table
-INSERT INTO user_by_squad (squad_id, user_email)
+INSERT INTO users_by_squad (squad_id, user_email)
 VALUES (11111111-1111-1111-1111-111111111111, 'user1@example.com');
 
-INSERT INTO user_by_squad (squad_id, user_email)
+INSERT INTO users_by_squad (squad_id, user_email)
 VALUES (11111111-1111-1111-1111-111111111111, 'user2@example.com');
 
-INSERT INTO user_by_squad (squad_id, user_email)
+INSERT INTO users_by_squad (squad_id, user_email)
 VALUES (22222222-2222-2222-2222-222222222222, 'user3@example.com');
 
 

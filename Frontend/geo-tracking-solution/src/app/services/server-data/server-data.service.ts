@@ -44,8 +44,8 @@ export class ServerDataService {
     this.getData(`member/chat/${chatid}/messages`, `/topic/chat/${chatid}`, callback);
   }
 
-  async getGeoLocationData(squadId: number, earliestTime: string, callback: (Data: any) => void) {
-    this.getData(`member/group-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation`, callback);
+  async getGeoLocationData(squadId: string, earliestTime: string, callback: (Data: any) => void) {
+    this.getData(`member/squad-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation`, callback);
   }
 
   async getChatCreations(userEmail: string, callback: (Data: any) => void) {

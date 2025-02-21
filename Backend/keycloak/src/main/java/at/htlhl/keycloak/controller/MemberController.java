@@ -48,12 +48,14 @@ public class MemberController {
     @Autowired
     public MemberController(
             GroupService groupService,
+            SquadService squadService,
             UserService userService,
             GPSDataService gpsDataService,
             ChatService chatService,
             MessageService messageService,
             SimpMessagingTemplate messagingTemplate) {
         this.groupService = groupService;
+        this.squadService = squadService;
         this.userService = userService;
         this.gpsDataService = gpsDataService;
         this.chatService = chatService;
@@ -120,7 +122,7 @@ public class MemberController {
                 String userEmail =  user.getKey().getUserEmail();
                 if (!userEmails.contains(userEmail)) {
                     System.out.println("Helo" + userEmail);
-                    userLocations.addAll(gpsDataService.getGPSDataOf(user.getKey().getUserEmail(), earliestTime));
+                    userLocations.addAll(gpsDataService.getGPSDataOf(userEmail, earliestTime));
                     if (!userEmailsInSquad.contains(userEmail)) {
                         userEmailsInSquad.add(userEmail);
                     }
@@ -130,6 +132,12 @@ public class MemberController {
         }
 
         return userLocations;
+    }
+
+    @GetMapping("/squads")
+    @Operation(description = "Returns all squads of a User")
+    public List<UserBySquad> getSquads() {
+        return squadService.getSquadsFromUser(userService.getUserEmail());
     }
 
     @GetMapping("/chats") // Todo chats: user hinzufügen, editieren

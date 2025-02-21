@@ -7,6 +7,7 @@ import { CookieSettingsService } from '../../services/Cookies/cookie-settings.se
 import { MapType } from '../../models/interfaces';
 import { ServerDataService } from '../../services/server-data/server-data.service';
 import { MatSort } from '@angular/material/sort';
+import { RestService } from '../../services/REST/rest.service';
 
 @Component({
   selector: 'app-map-table',
@@ -14,8 +15,7 @@ import { MatSort } from '@angular/material/sort';
   styleUrl: './map-table.component.css'
 })
 export class MapTableComponent implements OnInit {
-  currentUserData: User = { userEmail: "currentUser", location: { longitude: 16.1, latitude: 48.627 } };
-  users: User[] = [this.currentUserData];
+  users: User[] = [];
 
   displayedColumns: string[] = ['username', 'longitude', 'latitude'];
 
@@ -34,7 +34,7 @@ export class MapTableComponent implements OnInit {
     { value: 'satellite', viewValue: 'Satelit' },
   ];
 
-  constructor(private themeService: ThemeService, private cookieService: CookieSettingsService, private translateService: TranslateService, private serverDataService: ServerDataService) {
+  constructor(private themeService: ThemeService, private cookieService: CookieSettingsService, private translateService: TranslateService, private serverDataService: ServerDataService, private restService: RestService) {
     this.translateService.use(this.cookieService.getLanguage());
   }
 
@@ -47,25 +47,41 @@ export class MapTableComponent implements OnInit {
     this.tableSource.sort = this.sort;
 
     const date = new Date(Date.now());
-    date.setFullYear(2023)
+    date.setFullYear(date.getFullYear()-1);
 
 
     const earliestDate = date.toISOString().split('.')[0] + date.toISOString().split('.')[1].substring(3);
 
-    this.serverDataService.getGeoLocationData(0, earliestDate, (data: any) => {
-      if (data.key?.timestamp && data.key?.userEmail && data.longitude && data.latitude) {
-        const userEmail = data.key.userEmail;
-        const newLocation = { longitude: data.longitude, latitude: data.latitude };
 
-        const existingUserIndex = this.users.findIndex(user => user.userEmail === userEmail);
-        if (existingUserIndex !== -1) {
-          this.tableSource.data[existingUserIndex].location = newLocation;
-        } else {
-          this.tableSource.data.push({ userEmail, location: newLocation });
-        }
-        this.users.push({ userEmail, location: newLocation });
-      }
-    });
+    this.restService.GET("member/squads").then(observable => {
+      observable.subscribe({
+        next: (squads: any[]) => {
+          for (const squad of squads) {
+            console.log(squad["key"]["squadId"]);
+            this.serverDataService.getGeoLocationData(squad["key"]["squadId"], earliestDate, (data: any) => {
+              if (data.key?.timestamp && data.key?.userEmail && data.longitude && data.latitude) {
+                const userEmail = data.key.userEmail;
+                const newLocation = { longitude: data.longitude, latitude: data.latitude };
+        
+                const existingUserIndex = this.users.findIndex(user => user.userEmail === userEmail);
+                if (existingUserIndex !== -1) {
+                  this.tableSource.data[existingUserIndex].location = newLocation;
+                } else {
+                  this.tableSource.data.push({ userEmail, location: newLocation });
+                }
+                console.log(userEmail)
+                this.users.push({ userEmail, location: newLocation });
+              }
+            });
+            this.updateTableSource(); 
+          }
+        },
+        error: () => console.log("squaderror")
+      });
+    })
+    .catch(() => console.log("squaderror"));
+
+    
   }
 
   updateTableSource(): void {
@@ -82,7 +98,7 @@ export class MapTableComponent implements OnInit {
     this.selectedMap = selectedMap;
 
     //insert some testdata
-    const newUsers = [
+    /*const newUsers = [
       { userEmail: "currentUser0", location: { longitude: 16.0, latitude: 48.627 } },
       { userEmail: "currentUser1", location: { longitude: 14.5, latitude: 52.520 } },
       { userEmail: "currentUser1", location: { longitude: -74.006, latitude: 40.7128 } },
@@ -97,7 +113,7 @@ export class MapTableComponent implements OnInit {
 
     newUsers.forEach(newUser => {
       this.users.push(newUser);
-    });
+    });*/
 
     this.updateTableSource();
   }

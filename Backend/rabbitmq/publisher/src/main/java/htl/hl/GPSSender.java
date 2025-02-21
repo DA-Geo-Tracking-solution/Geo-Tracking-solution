@@ -46,6 +46,8 @@ public class GPSSender {
                 try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
                     br.readLine(); // Skip the header
 
+                    int i = 0;
+
                     while ((line = br.readLine()) != null) {
                         String[] values = line.split(csvSeparator);
                         String sender = values[0];
@@ -60,9 +62,10 @@ public class GPSSender {
                             // Parse the timestamp into a ZonedDateTime
                             ZonedDateTime zonedDateTime = ZonedDateTime.parse(timestamp);
                             Instant instant = zonedDateTime.toInstant(); // Convert to Instant
+                            instant = Instant.now();
 
                             // Construct the message with the Instant timestamp (in UTC)
-                            String message = accessToken + ":" + sender + "," + instant.toString() + "," + longitude + "," + latitude;
+                            String message = accessToken + ":" + sender + "," + instant.toString() + "," + longitude + "," + i;
 
                             // Publish the message
                             channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
@@ -72,6 +75,7 @@ public class GPSSender {
                             System.out.println("Failed to parse timestamp: " + timestamp);
                             continue; // Skip this record if parsing fails
                         }
+                        i++;
                     }
                 }
             }

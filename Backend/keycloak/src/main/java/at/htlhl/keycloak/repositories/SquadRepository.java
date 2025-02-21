@@ -21,10 +21,10 @@ import at.htlhl.keycloak.model.MessageByChat.MessageByChatKey;
 
 public interface SquadRepository extends CassandraRepository<UserBySquad, UserBySquadKey> {
 
-    @Query("SELECT * FROM user_by_squad WHERE squad_id = ?0")
+    @Query("SELECT * FROM users_by_squad WHERE squad_id = ?0")
     List<UserBySquad> getUsers(UUID squadId);
 
-    @Query("SELECT * FROM user_by_squad WHERE user_email = ?0 ALLOW FILTERING")
+    @Query("SELECT * FROM users_by_squad WHERE user_email = ?0 ALLOW FILTERING")
     List<UserBySquad> getSquads(String user_email);
 
     @Query("SELECT user_email FROM users_by_squad WHERE chat_id = ?0 AND user_email = ?1 LIMIT 1")
@@ -33,7 +33,7 @@ public interface SquadRepository extends CassandraRepository<UserBySquad, UserBy
     @Query("SELECT squad_id FROM users_by_chat WHERE chat_id = ?0 LIMIT 1")
     Optional<UUID> doesSquadIdExist(UUID squadId);
 
-    @Query("INSERT INTO user_by_squad (squad_id, user_email) VALUES (?0, ?1) IF NOT EXISTS")
+    @Query("INSERT INTO users_by_squad (squad_id, user_email) VALUES (?0, ?1) IF NOT EXISTS")
     boolean insertIfNotExists(UUID squadId, String userEmail);
 
     // @Query("INSERT INTO messages_by_chat (chat_id, message_id, author_email,
