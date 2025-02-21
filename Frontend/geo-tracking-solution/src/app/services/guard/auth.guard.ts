@@ -20,7 +20,7 @@ export const groupmasterGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (!keycloakService.isGroupMaster()) {
-    router.navigate(['']);
+    //router.navigate(['']);
     return false;
   }
   return true;

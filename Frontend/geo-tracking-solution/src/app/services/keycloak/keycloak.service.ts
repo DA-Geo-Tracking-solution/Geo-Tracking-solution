@@ -58,7 +58,7 @@ export class KeycloakService {
   async refreshToken(): Promise<void> {
     if (this.keycloak && this._profile) {
       try {
-        const refreshed = await this.keycloak.updateToken(30); // Refresh if token expires in 30 seconds
+        const refreshed = await this.keycloak.updateToken(60); // Refresh if token expires in 60 seconds
         if (refreshed) {
           console.log("Token successfully refreshed");
           this._profile.token = this.keycloak.token; // Update the token in your profile
