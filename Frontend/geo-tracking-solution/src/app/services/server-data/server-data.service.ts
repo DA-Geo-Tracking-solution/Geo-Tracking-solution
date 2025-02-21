@@ -45,7 +45,7 @@ export class ServerDataService {
   }
 
   async getGeoLocationData(squadId: string, earliestTime: string, callback: (Data: any) => void) {
-    this.getData(`member/squad-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation`, callback);
+    this.getData(`member/squad-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation/squad/${squadId}`, callback);
   }
 
   async getChatCreations(userEmail: string, callback: (Data: any) => void) {

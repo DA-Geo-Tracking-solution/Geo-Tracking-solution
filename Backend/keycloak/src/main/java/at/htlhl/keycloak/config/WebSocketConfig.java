@@ -140,8 +140,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             };
                         }
 
-                    }
-                    if (destination != null && destination.startsWith("/topic/chat/")) {
+                    } else if (destination != null && destination.startsWith("/topic/chat/")) {
 
                         UUID chatId = UUID.fromString(destination.substring(12));
 

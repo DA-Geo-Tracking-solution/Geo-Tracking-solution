@@ -1,23 +1,14 @@
 package at.htlhl.keycloak.service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import at.htlhl.keycloak.model.GPSData;
-import at.htlhl.keycloak.model.SquadData;
-import at.htlhl.keycloak.model.ChatByUser;
-import at.htlhl.keycloak.model.ChatByUser.ChatByUserKey;
-import at.htlhl.keycloak.model.UserByChat;
 import at.htlhl.keycloak.model.UserBySquad;
-import at.htlhl.keycloak.model.UserByChat.UserByChatKey;
 import at.htlhl.keycloak.model.UserBySquad.UserBySquadKey;
-import at.htlhl.keycloak.repositories.ChatByUserRepository;
 import at.htlhl.keycloak.repositories.SquadRepository;
-import at.htlhl.keycloak.repositories.UserByChatRepository;
 
 @Service
 public class SquadService {
@@ -41,7 +32,6 @@ public class SquadService {
 
 
     public boolean isUserInSquad(UUID squadId, String userEmail) {
-        System.out.println("@Query(\"SELECT user_email FROM user_by_squad WHERE squad_id = " + squadId + " AND user_email = " + userEmail + " LIMIT 1\")");
         return squadRepository.isUserInSquad(squadId, userEmail).size() == 1;
     }
 

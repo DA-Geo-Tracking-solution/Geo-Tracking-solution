@@ -99,6 +99,7 @@ public class Consumer {
 
             messagingTemplate.convertAndSend("/topic/geolocation/group/" + groups.get(0).getId(), gpsData);*/
             for (UserBySquad userBySquad: squadService.getSquadsFromUser(userEmail)) {
+                System.out.println("/topic/geolocation/squad/" + userBySquad.getKey().getSquadId());
                 messagingTemplate.convertAndSend("/topic/geolocation/squad/" + userBySquad.getKey().getSquadId(), gpsData);
             }
         } catch (Exception e) {
