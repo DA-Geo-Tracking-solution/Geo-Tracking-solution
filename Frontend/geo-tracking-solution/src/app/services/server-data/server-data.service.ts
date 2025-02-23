@@ -30,14 +30,17 @@ export class ServerDataService {
    
     if (!this.websocketService.isConnected()) {
       this.websocketService.connect();
-      console.log("--------------------------------------------------------------")
+      console.log("------------------------------");
     }
     this.websocketService.subscribe(websocketTopic, (message: IMessage) => {
       const jsonData = JSON.parse(message.body);
       console.log('Received JSON:', jsonData);
       callback(jsonData);
     });
-  
+  }
+
+  async getChatCreations(userEmail: string, callback: (Data: any) => void) {
+    this.getData(`member/chats`, `/topic/chatCreation/${userEmail}`, callback);
   }
 
   async getChatMessages(chatid: string, callback: (Data: any) => void) {
@@ -46,10 +49,6 @@ export class ServerDataService {
 
   async getGeoLocationData(squadId: string, earliestTime: string, callback: (Data: any) => void) {
     this.getData(`member/squad-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation/squad/${squadId}`, callback);
-  }
-
-  async getChatCreations(userEmail: string, callback: (Data: any) => void) {
-    this.getData(`member/chats`, `/topic/chatCreation/${userEmail}`, callback);
   }
 
   close() {

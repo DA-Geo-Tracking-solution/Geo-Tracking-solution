@@ -115,6 +115,7 @@ export class UserComponent {
     });
 
     dialogRef.afterClosed().subscribe(() => {
+      this.keycloakService.updateUserProfile();
       this.keycloakService.logout();
     });
   }
