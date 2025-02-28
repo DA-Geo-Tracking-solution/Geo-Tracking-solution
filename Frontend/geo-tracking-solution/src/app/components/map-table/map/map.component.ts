@@ -155,4 +155,8 @@ export class MapComponent {
 
     this.vectorService.setMap(this.map);
   }
+
+  getUsers(){
+    return this.users;
+  }
 }

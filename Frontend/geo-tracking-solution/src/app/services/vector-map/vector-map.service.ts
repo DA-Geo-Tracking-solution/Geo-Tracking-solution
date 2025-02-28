@@ -3,6 +3,7 @@ import maplibregl, { Color, Feature } from 'maplibre-gl';
 import User from '../../classes/User';
 import MaplibreTerradrawControl from '@watergis/maplibre-gl-terradraw';
 import { GeoJSONStoreFeatures, TerraDraw } from 'terra-draw';
+import { AreaService } from '../area/area.service';
 
 
 @Injectable({
@@ -10,6 +11,7 @@ import { GeoJSONStoreFeatures, TerraDraw } from 'terra-draw';
 })
 
 export class VectorMapService {
+  private users: User[] = [];
   private map!: maplibregl.Map;
   private drawControl!: MaplibreTerradrawControl;
   private vectormarkers: { [key: string]: maplibregl.Marker } = {};
@@ -22,7 +24,7 @@ export class VectorMapService {
   private drawingCoordinates: any;
 
 
-  constructor() { }
+  constructor(private areaService: AreaService) { }
 
   setMap(map: maplibregl.Map): void {
     this.map = map;
@@ -33,6 +35,7 @@ export class VectorMapService {
   drawUserMarkers(users: User[]): any {
     if (this.map) {
       for (const user of users) {
+        this.areaService.haveUserData(user, this.drawingCoordinates);
         // when there already is a marker for a User change its position
         if (this.vectormarkers[user.userEmail]) {
           this.vectormarkers[user.userEmail].setLngLat([user.location.longitude, user.location.latitude]);
@@ -104,6 +107,7 @@ export class VectorMapService {
   //draw the figures already drawn on the other maptypes
   //gets all previous figures in a json format
   drawPreviousFigures(drawingData: any) {
+    this.drawingCoordinates = drawingData;
     for (const figure of drawingData) {
       const id: number = drawingData.findIndex((drawing: any) => drawing === figure);
       // when the type is 'Polygon' reformat it and call addPolygon method
@@ -231,7 +235,7 @@ export class VectorMapService {
 
       //when a figure is finished drawing extract the important data and add it to the data array
       this.terraDrawInstance.on('finish', (event) => {
-        data = [];
+        let data: any;
         const storedFeatures = this.terraDrawInstance["_store"]["store"]; // Access the stored features from the Map
 
         for (const key in storedFeatures) {
@@ -239,10 +243,10 @@ export class VectorMapService {
             const feature = storedFeatures[key];
             //categorize all sorts of polygons into polygons and add them to the data array
             if (["polygon", "rectangle", "angled-rectangle", "freehand"].includes(feature.properties.mode)) {
-              data.push({
+              data = {
                 type: "Polygon",
                 coordinates: feature.geometry.coordinates
-              });
+              };
             }
             //calculate the center and the radius in meters of the circle and add them to the data array
             else if (["circle"].includes(feature.properties.mode)) {
@@ -258,29 +262,31 @@ export class VectorMapService {
               const avglat = latcoordinates / (feature.geometry.coordinates[0].length - 1);
               //caculate radius (first Longitude - the Longitude on the opposit side of the circle)
               const radius = (Number(feature.geometry.coordinates[0][0][0]) - Number(feature.geometry.coordinates[0][(feature.geometry.coordinates[0].length - 1) / 2][0])) / 2;
-
-              data.push({
+              data = {
                 type: "Circle",
                 coordinates: [[avglng, avglat], radius]
-              });
+              };
             }
             //get the coordinates of linestrings and add them to the data array
             else if (["linestring"].includes(feature.properties.mode)) {
-              data.push({
+              data = {
                 type: "Linestring",
                 coordinates: feature.geometry.coordinates
-              });
+              };
             }
             //get the coordinates of points and add them to the data array
             else if (["point"].includes(feature.properties.mode)) {
-              data.push({
+              data = {
                 type: "Point",
                 coordinates: feature.geometry.coordinates
-              });
+              };
             }
           }
         }
-        this.drawingCoordinates = data;
+        if (data) {
+          this.areaService.haveDrawingData(this.users, data);
+          this.drawingCoordinates.push(data);
+        }
       });
     });
   }
