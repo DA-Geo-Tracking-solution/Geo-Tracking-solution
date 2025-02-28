@@ -92,39 +92,42 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         };
                     }
                 } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
-                    String destination = accessor.getDestination();
-
-                    if (destination != null && destination.startsWith("/topic/geolocation/squad/")) {
-                        UUID squadId = UUID.fromString(destination.substring(25));
-
-                        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor
-                                .getUser();
-                        if (!squadService.isUserInSquad(squadId, (String) auth.getPrincipal())) {
-                            throw new AuthenticationException("User not authorized to subscribe to " + destination) {
-                            };
-                        }
-                    } else if (destination != null && destination.startsWith("/topic/chat/")) {
-                        UUID chatId = UUID.fromString(destination.substring(12));
-
-                        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor
-                                .getUser();
-                        if (!chatService.isUserInChat(chatId, (String) auth.getPrincipal())) {
-                            throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
-                        }                         
-                    } else if (destination != null && destination.startsWith("/topic/chatCreation/")) {
-                        String userEmail = destination.substring(20);
-                        
-                        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor.getUser();
-                        if (!userEmail.equals((String) auth.getPrincipal())) {
-                            throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
-                        }                         
-                    }
-
+                    subscribe(accessor);
                 }
 
                 return message;
             }
         });
+    }
+
+    private void subscribe(StompHeaderAccessor accessor) {
+        String destination = accessor.getDestination();
+
+        if (destination != null && destination.startsWith("/topic/geolocation/squad/")) {
+            UUID squadId = UUID.fromString(destination.substring(25));
+
+            UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor
+                    .getUser();
+            if (!squadService.isUserInSquad(squadId, (String) auth.getPrincipal())) {
+                throw new AuthenticationException("User not authorized to subscribe to " + destination) {
+                };
+            }
+        } else if (destination != null && destination.startsWith("/topic/chat/")) {
+            UUID chatId = UUID.fromString(destination.substring(12));
+
+            UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor
+                    .getUser();
+            if (!chatService.isUserInChat(chatId, (String) auth.getPrincipal())) {
+                throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
+            }                         
+        } else if (destination != null && destination.startsWith("/topic/chatCreation/")) {
+            String userEmail = destination.substring(20);
+            
+            UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor.getUser();
+            if (!userEmail.equals((String) auth.getPrincipal())) {
+                throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
+            }                         
+        }
     }
 
     @Override

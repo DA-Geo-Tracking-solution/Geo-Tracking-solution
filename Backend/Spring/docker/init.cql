@@ -76,6 +76,12 @@ VALUES (11111111-1111-1111-1111-111111111111, 'user2@example.com');
 INSERT INTO users_by_squad (squad_id, user_email)
 VALUES (22222222-2222-2222-2222-222222222222, 'user3@example.com');
 
+INSERT INTO users_by_squad (squad_id, user_email)
+VALUES (33333333-3333-3333-3333-333333333333, 'testuser@example.com');
+
+INSERT INTO users_by_squad (squad_id, user_email)
+VALUES (33333333-3333-3333-3333-333333333333, 'testuser2@example.com');
+
 
 -- Insert into Messages by Chat Table
 INSERT INTO messages_by_chat (chat_id, message_id, author_email, content, timestamp)
