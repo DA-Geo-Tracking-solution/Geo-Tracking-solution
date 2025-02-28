@@ -70,10 +70,11 @@ export class MapTableComponent implements OnInit {
                   this.tableSource.data.push({ userEmail, location: newLocation });
                 }
                 console.log(userEmail)
-                this.users.push({ userEmail, location: newLocation });
+                this.users = [...this.users, { userEmail, location: newLocation }];
+                this.updateTableSource(); 
               }
             });
-            this.updateTableSource(); 
+            
           }
         },
         error: () => console.log("squaderror")

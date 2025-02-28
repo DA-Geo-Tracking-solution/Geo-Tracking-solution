@@ -56,41 +56,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    String authHeader = accessor.getFirstNativeHeader("Authorization");
-                    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                        String token = authHeader.substring(7);
-
-                        System.out.println(token);
-
-                        Jwt jwt = jwtDecoder().decode(token);
-                        Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-                        if (sessionAttributes == null) {
-                            sessionAttributes = new HashMap<>();
-                            accessor.setSessionAttributes(sessionAttributes);
-                        }
-
-                        // Add JWT to session attributes
-                        sessionAttributes.put("jwt", jwt);
-
-                        String userEmail = (String) jwt.getClaims().get("email");
-                        if (userEmail == null) {
-                            userEmail = jwt.getSubject();
-                        }
-
-                        System.out.println("JWT successfully added to session attributes: " + jwt.getSubject());
-                        var auth = new UsernamePasswordAuthenticationToken(userEmail, null,
-                                new KeycloakJwtAuthenticationConverter().convert(jwt).getAuthorities());
-                        accessor.setUser(auth);
-                        System.out.println(auth);
-
-                        // SecurityContextHolder.getContext().setAuthentication(auth);
-                       
-
-                    } else {
-                        System.out.println("No Authorization header found");
-                        throw new AuthenticationException("No Authorization header found") {
-                        };
-                    }
+                    connect(accessor);
                 } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
                     subscribe(accessor);
                 }
@@ -98,6 +64,41 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 return message;
             }
         });
+    }
+
+    private void connect(StompHeaderAccessor accessor) {
+        String authHeader = accessor.getFirstNativeHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+
+            System.out.println(token);
+
+            Jwt jwt = jwtDecoder().decode(token);
+            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+            if (sessionAttributes == null) {
+                sessionAttributes = new HashMap<>();
+                accessor.setSessionAttributes(sessionAttributes);
+            }
+
+            // Add JWT to session attributes
+            sessionAttributes.put("jwt", jwt);
+
+            String userEmail = (String) jwt.getClaims().get("email");
+            if (userEmail == null) {
+                userEmail = jwt.getSubject();
+            }
+
+            System.out.println("JWT successfully added to session attributes: " + jwt.getSubject());
+            var auth = new UsernamePasswordAuthenticationToken(userEmail, null,
+                    new KeycloakJwtAuthenticationConverter().convert(jwt).getAuthorities());
+            accessor.setUser(auth);
+            System.out.println(auth);
+            
+        } else {
+            System.out.println("No Authorization header found");
+            throw new AuthenticationException("No Authorization header found") {
+            };
+        }
     }
 
     private void subscribe(StompHeaderAccessor accessor) {
