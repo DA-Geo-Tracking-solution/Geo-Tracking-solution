@@ -9,9 +9,11 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import at.htlhl.geo_tracking_solution.model.Role;
 import at.htlhl.geo_tracking_solution.model.keycloak.User;
@@ -91,20 +93,20 @@ public class UserService {
         userResource.roles().realmLevel().add(Role.getAsRoleList(roles, keycloak, realm));
     }
 
-    public String updateUser(User userModel) {
+    public String updateUser(User userModel) throws ResponseStatusException {
         try {
 
 
             System.out.println(getUserEmail() + "---  ,  ---" + userModel.getEmail());
             if (getUserByEmail(userModel.getEmail()) != null && !getUserEmail().equals(userModel.getEmail())) {
-                return "Email alrady exists";
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email alrady exists");
             }
 
             // Find the user by ID
             UserRepresentation user = keycloak.realm(realm).users().get(getUserId()).toRepresentation();
     
             if (user == null) {
-                return "User not found";
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "User not found");
             }
     
             String userId = user.getId();
@@ -122,7 +124,7 @@ public class UserService {
             return "User details updated successfully";
     
         } catch (Exception e) {
-            return "An error occurred while updating the user: " + e.getMessage();
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "An error occurred while updating the user: " + e.getMessage());
         }
     }
 

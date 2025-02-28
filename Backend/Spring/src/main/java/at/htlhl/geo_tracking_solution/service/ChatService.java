@@ -6,7 +6,9 @@ import java.util.UUID;
 
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import at.htlhl.geo_tracking_solution.model.Chat;
 import at.htlhl.geo_tracking_solution.model.ChatByUser;
@@ -43,7 +45,7 @@ public class ChatService {
         return usersByChatRepository.isUserInChat(chatId, userEmail).size() == 1;
     }
 
-    public Chat createChat(String chatName, List<String> userEmails) throws Exception{
+    public Chat createChat(String chatName, List<String> userEmails) throws ResponseStatusException{
         UUID chatId = UUID.randomUUID();
         try {
             // Inserts if uuid not exists else throws error
@@ -68,13 +70,13 @@ public class ChatService {
             for (String userEmail: userEmails) {
                 revertUsersByChat(userEmail, chatId);
             }
-            throw new Exception("Failed to update chat associations, changes rolled back." + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to update chat associations, changes rolled back." + e.getMessage());
         }
     }
 
 
 
-    public void putUserInChat(String userEmail, UUID chatId, String chatName) throws Exception{
+    public void putUserInChat(String userEmail, UUID chatId, String chatName) throws ResponseStatusException{
         try {
             // Inserts only if uuid exist else throws error
             if (!usersByChatRepository.doesChatIdExist(chatId).isPresent()) {
@@ -86,7 +88,7 @@ public class ChatService {
         } catch (Exception e) {
             // Undo changes if one fails
             revertUsersByChat(userEmail, chatId);
-            throw new Exception("Failed to update chat associations, changes rolled back.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to update chat associations, changes rolled back.");
         }
         
     }
