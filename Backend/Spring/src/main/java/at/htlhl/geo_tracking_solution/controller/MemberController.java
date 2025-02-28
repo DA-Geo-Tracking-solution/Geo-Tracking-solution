@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.apache.james.mime4j.dom.datetime.DateTime;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import at.htlhl.geo_tracking_solution.model.Chat;
 import at.htlhl.geo_tracking_solution.model.ChatByUser;
@@ -84,11 +86,11 @@ public class MemberController {
 
     @PatchMapping("/user")
     @Operation(description = "Edits Userinformation in format { {username, userEmail, firstname, lastname} } of User")
-    public String editUser(@RequestBody Map<String, Object> request) {
+    public String editUser(@RequestBody Map<String, Object> request) throws ResponseStatusException{
         
         User userModel = User.MapToUser((Map<String, Object>) request.get("user"));
-
-        return "{ \"message\": \"" + userService.updateUser(userModel) + "\" }";
+        String message = userService.updateUser(userModel);
+        return "{ \"message\": \"" + message + "\" }";
     }
 
     @GetMapping("/user-location")
@@ -178,10 +180,10 @@ public class MemberController {
 
     @PostMapping("/chat")
     @Operation(description = "Create a chat with format { chatName, [useremail] }")
-    public String createChat(@RequestBody Map<String, Object> request) {
+    public String createChat(@RequestBody Map<String, Object> request) throws ResponseStatusException{
         List<String> userEmails = (List<String>) request.get("userEmails");
         if (userEmails == null) {
-            return "userEmails do not exist";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userEmails do not exist");
         }
         if (!userEmails.contains(userService.getUserEmail())) {
             userEmails.add(userService.getUserEmail());
@@ -190,41 +192,36 @@ public class MemberController {
         if (chatName == null) {
             chatName = "Unkown ChatName";
         }
-        try {
-            Chat chat = chatService.createChat(chatName, userEmails);
-            for (String userEmail : userEmails) {
-                messagingTemplate.convertAndSend("/topic/chatCreation/" + userEmail,  chat);
-            }
-            return "created Succesfully";
-        } catch (Exception e) {
-            return e.getMessage();
+
+        Chat chat = chatService.createChat(chatName, userEmails);
+        for (String userEmail : userEmails) {
+            messagingTemplate.convertAndSend("/topic/chatCreation/" + userEmail,  chat);
         }
+        return "created Succesfully";
 
     }
 
     @PutMapping("/chat/{chatId}")
     @Operation(description = "Edit a chat and its user-emails-array")
-    public String editChat(@RequestBody Chat chat) {
-        return "not implemented!";
+    public String editChat() throws ResponseStatusException{
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "not implemented!");
     }
 
     @PatchMapping("/chat/{chatId}/user")
     @Operation(description = "Puts a user in a chat in format { userEmail, chatName } as well if chat does not exist")
-    public String putUserInChat(@PathVariable("chatId") UUID chatId, @RequestBody Map<String, String> request) {
+    public String putUserInChat(@PathVariable("chatId") UUID chatId, @RequestBody Map<String, String> request) throws ResponseStatusException{
         String userEmail = request.get("userEmail");
         if (userEmail == null || userService.getUserByEmail(userEmail) == null) {
-            return "userEmail does not exist";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userEmail does not exist");
         }
         String chatName = request.get("chatName");
         if (chatName == null) {
             chatName = "Unkown ChatName";
         }
-        try {
-            chatService.putUserInChat(userEmail, chatId, chatName);
-            return "updated Succesfully";
-        } catch (Exception e) {
-            return e.getMessage();
-        }
+        
+        chatService.putUserInChat(userEmail, chatId, chatName);
+        return "updated Succesfully";
+       
     }
 
     @GetMapping("chat/{chatId}/messages")
