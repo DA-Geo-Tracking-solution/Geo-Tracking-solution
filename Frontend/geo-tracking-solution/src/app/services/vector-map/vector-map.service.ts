@@ -16,6 +16,7 @@ export class VectorMapService {
   private drawControl!: MaplibreTerradrawControl;
   private vectormarkers: { [key: string]: maplibregl.Marker } = {};
   private userLocations: { [key: string]: [number, number][] } = {};
+  private mapHasLoaded: boolean = false;
 
   private allLocations: any;
   private terraDrawInstance!: TerraDraw;
@@ -57,6 +58,7 @@ export class VectorMapService {
 
   //a method to draw trails behind the markers to show the previous path of the user
   drawUserLines(users: User[]): void {
+    console.log("hi-1")
     const features: any = [];
     for (const user of users) {
       const lat = user.location.latitude;
@@ -82,8 +84,14 @@ export class VectorMapService {
         }
       });
     }
+    console.log("hi0")
     if (this.map) {
-      this.map.on('load', () => {
+      console.log("hi1")
+      if (this.map.loaded()) {
+        if (this.map.getSource('lines')) {
+          this.map.removeLayer('lines');
+          this.map.removeSource('lines');
+        }
         this.map.addSource('lines', {
           'type': 'geojson',
           'data': {
@@ -91,6 +99,7 @@ export class VectorMapService {
             'features': features
           }
         });
+        console.log("hi2")
         this.map.addLayer({
           'id': 'lines',
           'type': 'line',
@@ -100,7 +109,7 @@ export class VectorMapService {
             'line-color': ['get', 'color']
           }
         });
-      });
+      }
     }
   }
 
