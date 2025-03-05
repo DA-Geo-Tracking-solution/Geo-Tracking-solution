@@ -37,7 +37,7 @@ export class MessageService {
     }
   }
 
-  public getMessages(chatId: string, callback: (messages: ChatMessage) => void): void {
+  public initCallback(chatId: string, callback: (messages: ChatMessage) => void): void {
     const messages = this.messages.get(`${chatId}`) || [];
     for (const message of messages) {
       callback(message);

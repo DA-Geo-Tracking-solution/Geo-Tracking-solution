@@ -56,9 +56,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    connect(accessor);
+                    onConnect(accessor);
                 } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
-                    subscribe(accessor);
+                    onSubscribe(accessor);
                 }
 
                 return message;
@@ -66,42 +66,49 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         });
     }
 
-    private void connect(StompHeaderAccessor accessor) {
+    private void onConnect(StompHeaderAccessor accessor) {
         String authHeader = accessor.getFirstNativeHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
 
-            System.out.println(token);
-
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AuthenticationException("Invalid Authorisation-Header") {};
+        }
+    
+        String token = authHeader.substring(7);
+    
+        try {
             Jwt jwt = jwtDecoder().decode(token);
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+    
             if (sessionAttributes == null) {
                 sessionAttributes = new HashMap<>();
                 accessor.setSessionAttributes(sessionAttributes);
             }
-
-            // Add JWT to session attributes
+    
+            // JWT in den Sitzungsattributen speichern
             sessionAttributes.put("jwt", jwt);
-
-            String userEmail = (String) jwt.getClaims().get("email");
+    
+            String userEmail = jwt.getClaims().get("email") instanceof String
+                ? (String) jwt.getClaims().get("email")
+                : jwt.getSubject();
+    
             if (userEmail == null) {
-                userEmail = jwt.getSubject();
+                throw new AuthenticationException("E-Mail konnte nicht aus dem JWT extrahiert werden") {};
             }
-
-            System.out.println("JWT successfully added to session attributes: " + jwt.getSubject());
-            var auth = new UsernamePasswordAuthenticationToken(userEmail, null,
-                    new KeycloakJwtAuthenticationConverter().convert(jwt).getAuthorities());
+    
+            var auth = new UsernamePasswordAuthenticationToken(
+                userEmail, 
+                null,
+                new KeycloakJwtAuthenticationConverter().convert(jwt).getAuthorities()
+            );
+    
             accessor.setUser(auth);
-            System.out.println(auth);
-            
-        } else {
-            System.out.println("No Authorization header found");
-            throw new AuthenticationException("No Authorization header found") {
-            };
+        
+        } catch (JwtException e) {
+            throw new AuthenticationException("Invalid JWT: " + e.getMessage()) {};
         }
     }
 
-    private void subscribe(StompHeaderAccessor accessor) {
+    private void onSubscribe(StompHeaderAccessor accessor) {
         String destination = accessor.getDestination();
 
         if (destination != null && destination.startsWith("/topic/geolocation/squad/")) {
