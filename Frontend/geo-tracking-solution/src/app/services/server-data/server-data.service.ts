@@ -20,7 +20,6 @@ export class ServerDataService {
       next: (v) =>  {
         for (const element of v) {
           callback(element);
-          console.log(element)
         }
       },
       error: (e) => console.error('Error fetching secure data', e),
@@ -34,7 +33,6 @@ export class ServerDataService {
     }
     this.websocketService.subscribe(websocketTopic, (message: IMessage) => {
       const jsonData = JSON.parse(message.body);
-      console.log('Received JSON:', jsonData);
       callback(jsonData);
     });
   }

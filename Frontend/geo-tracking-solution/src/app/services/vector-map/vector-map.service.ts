@@ -34,9 +34,18 @@ export class VectorMapService {
   //a method to draw the Markers of Users, which are received from the backend and draws them depending on where they are in real live.
   //Also updates the position whenever changes from the Backend come in
   drawUserMarkers(users: User[]): any {
+    let uniqueUsers: User[] = [];
     if (this.map) {
       for (const user of users) {
         this.areaService.haveUserData(user, this.drawingCoordinates);
+        const existingUser = uniqueUsers.find(u => u.userEmail === user.userEmail);
+
+        if (existingUser) {
+          existingUser.location = user.location;
+        } else {
+          uniqueUsers.push(user);
+        }
+        
         // when there already is a marker for a User change its position
         if (this.vectormarkers[user.userEmail]) {
           this.vectormarkers[user.userEmail].setLngLat([user.location.longitude, user.location.latitude]);
@@ -53,12 +62,12 @@ export class VectorMapService {
         }
       }
     }
+    this.users = uniqueUsers;
     return this.allLocations;
   }
 
   //a method to draw trails behind the markers to show the previous path of the user
   drawUserLines(users: User[]): void {
-    console.log("hi-1")
     const features: any = [];
     for (const user of users) {
       const lat = user.location.latitude;
@@ -84,9 +93,7 @@ export class VectorMapService {
         }
       });
     }
-    console.log("hi0")
     if (this.map) {
-      console.log("hi1")
       if (this.map.loaded()) {
         if (this.map.getSource('lines')) {
           this.map.removeLayer('lines');
@@ -99,7 +106,6 @@ export class VectorMapService {
             'features': features
           }
         });
-        console.log("hi2")
         this.map.addLayer({
           'id': 'lines',
           'type': 'line',

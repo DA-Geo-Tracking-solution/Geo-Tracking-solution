@@ -58,7 +58,6 @@ export class MapComponent {
     }
   
     if (changes["users"]) {
-      console.log(this.users)
       this.updateUser();
     }
   }

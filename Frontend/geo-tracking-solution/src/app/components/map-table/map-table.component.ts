@@ -69,7 +69,6 @@ export class MapTableComponent implements OnInit {
                 } else {
                   this.tableSource.data.push({ userEmail, location: newLocation });
                 }
-                console.log(userEmail)
                 this.users = [...this.users, { userEmail, location: newLocation }];
                 this.updateTableSource(); 
               }

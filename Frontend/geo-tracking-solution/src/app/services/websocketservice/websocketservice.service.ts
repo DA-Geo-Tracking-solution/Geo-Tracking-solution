@@ -24,7 +24,7 @@ export class WebsocketService {
         connectHeaders: {
           Authorization: `Bearer ${token}`,
         },
-        debug: (str) => console.log(str),
+        //debug: (str) => console.log(str),
         reconnectDelay: 5000, // Automatically reconnect after 5 seconds
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
