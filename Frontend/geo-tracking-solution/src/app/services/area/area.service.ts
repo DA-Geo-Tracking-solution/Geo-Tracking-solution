@@ -7,37 +7,42 @@ import User from '../../classes/User';
 })
 export class AreaService {
 
-  private usersindrawings: { [key: number]: User[][] } = [];
+  private usersindrawings: { [key: number]: User[] } = [];
 
   constructor() { }
-  haveUserData(userdata: any, drawingdata: any) {
-    console.log("i")
-    console.log(drawingdata)
-    if (drawingdata.type === "Polygon") {
-      console.log(drawingdata);
-      for (const index in drawingdata) {
-        console.log("hiiiiiii")
-        if (this.calculateInPolygon(userdata, drawingdata[index])) {
-          if (!this.usersindrawings[drawingdata[index]].includes(userdata)) {
-            this.usersindrawings[drawingdata[index]].push(userdata);
-            this.userInDrawing(userdata, drawingdata[index]);
+  haveUserData(userdata: User, multibledrawingdata: any) {
+    for (const singledrawingdata of multibledrawingdata) {
+      if (singledrawingdata.type === "Polygon") {
+        const index = multibledrawingdata.indexOf(singledrawingdata);
+        if (this.calculateInPolygon([userdata.location.latitude, userdata.location.longitude], singledrawingdata.coordinates)) {
+          console.log("in poly")
+          if (!this.usersindrawings[index].some(user => user.userEmail === userdata.userEmail)) {
+            console.log("user wasn't in polygon")
+            this.usersindrawings[index].push(userdata);
+            this.userInDrawing(userdata.userEmail, index);
+          }else{
+            console.log("still in polygon")
           }
           //check, if user alredy in polygon
           //if not add and userInDrawing()
         } else {
-          if (this.usersindrawings[drawingdata[index]].includes(userdata)) {
-            this.usersindrawings[drawingdata[index]] = this.usersindrawings[drawingdata[index]].filter(user => user !== userdata);
-            this.userOutDrawing(userdata, index);
+          console.log("out poly")
+          if (this.usersindrawings[index].some(user => user.userEmail === userdata.userEmail)) {
+            console.log("was inside Polygon now out")
+            this.usersindrawings[index] = this.usersindrawings[index].filter(user => user.userEmail !== userdata.userEmail);
+            this.userOutDrawing(userdata.userEmail, index);
+          }else{
+            console.log("still out polygon")
           }
           //check, if user was in polygon
           //if remove and userOutDrawing()
         }
-      }
-    } else if (drawingdata.type === "Circle") {
-      for (const index in drawingdata) {
-        const drawing = drawingdata[index];
-        console.log(drawing)
-        //this.calculateInCircle(userdata.position, drawing.coordinates);
+      } else if (singledrawingdata.type === "Circle") {
+        for (const index in singledrawingdata) {
+          const drawing = singledrawingdata[index];
+          console.log(drawing)
+          //this.calculateInCircle(userdata.position, drawing.coordinates);
+        }
       }
     }
   }
@@ -51,7 +56,7 @@ export class AreaService {
           allUsersInDrawing.push(users[index]);
         }
       }
-      this.usersindrawings[Object.keys(this.usersindrawings).length] = [allUsersInDrawing];
+      this.usersindrawings[Object.keys(this.usersindrawings).length] = allUsersInDrawing;
       console.log(this.usersindrawings)
     } else {
       for (const user in users) {
@@ -108,12 +113,12 @@ export class AreaService {
     return toDeg(c);
   }
 
-  userInDrawing(user: User, drawing: number) {
-    console.log(user.userEmail + " went into " + drawing)
+  userInDrawing(user: string, drawing: number) {
+    console.log(user + " went into " + drawing)
     //not my business
   }
-  userOutDrawing(user: User, drawing:any) {
-    console.log(user.userEmail + " went out of " + drawing)
+  userOutDrawing(user: string, drawing: any) {
+    console.log(user + " went out of " + drawing)
     //not my business
   }
 }
