@@ -30,7 +30,7 @@ public interface SquadRepository extends CassandraRepository<UserBySquad, UserBy
     @Query("SELECT user_email FROM users_by_squad WHERE squad_id = ?0 AND user_email = ?1 LIMIT 1")
     List<UserBySquad> isUserInSquad(UUID squadId, String userEmail);
 
-    @Query("SELECT squad_id FROM users_by_chat WHERE squad_id = ?0 LIMIT 1")
+    @Query("SELECT squad_id FROM users_by_squad WHERE squad_id = ?0 LIMIT 1")
     Optional<UUID> doesSquadIdExist(UUID squadId);
 
     @Query("INSERT INTO users_by_squad (squad_id, user_email) VALUES (?0, ?1) IF NOT EXISTS")

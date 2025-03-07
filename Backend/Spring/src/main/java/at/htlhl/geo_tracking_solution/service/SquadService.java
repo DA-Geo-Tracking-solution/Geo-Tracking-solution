@@ -40,11 +40,11 @@ public class SquadService {
         try {
             // Inserts if uuid not exists else throws error
             if (squadRepository.doesSquadIdExist(squadId).isPresent()) {
-                throw new Exception();
+                throw new Exception("Squad does not exist");
             }
 
             for (String userEmail: userEmails) {
-                if (userService.getUserByEmail(userEmail) != null) {
+                if (userService.isMember(userEmail)) {
                     squadRepository.insertIfNotExists(squadId, userEmail);
                 }    
             }
@@ -58,14 +58,14 @@ public class SquadService {
         }
     }
 
-
-
-    public void putUserInSquad(String userEmail, UUID squadId, String chatName) throws Exception{
+    public void putUserInSquad(String userEmail, UUID squadId) throws Exception{
+        
+        if (!squadRepository.doesSquadIdExist(squadId).isPresent()) {
+            throw new Exception();
+        }
         try {
             // Inserts only if uuid exist else throws error
-            if (!squadRepository.doesSquadIdExist(squadId).isPresent()) {
-                throw new Exception();
-            }
+
             squadRepository.insertIfNotExists(squadId, userEmail);
 
         } catch (Exception e) {
@@ -79,5 +79,15 @@ public class SquadService {
     private void revertUsersBySquad(String userEmail, UUID squadId) {
         UserBySquadKey userBySquadKey = new UserBySquadKey(squadId, userEmail);
         squadRepository.deleteById(userBySquadKey);
-    }    
+    }
+
+    public void removeUserFromSquad(String userEmail, UUID squadId) throws Exception {
+        try {
+            UserBySquadKey key = new UserBySquadKey(squadId, userEmail);
+            squadRepository.deleteById(key);
+        } catch (Exception e) {
+            throw new Exception("Failed to remove user from squad", e);
+        }
+    }
+
 }

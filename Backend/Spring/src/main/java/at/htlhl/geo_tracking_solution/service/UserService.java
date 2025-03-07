@@ -49,6 +49,16 @@ public class UserService {
         return List.of();
     }
 
+    public boolean isMember(String userEmail) {
+        List<GroupRepresentation> groups = getUserGroups();
+    
+        if (!groups.isEmpty()) {
+            String groupId = groups.get(0).getId();
+            return keycloak.realm(realm).groups().group(groupId).members().stream()
+                .anyMatch(user -> userEmail.equalsIgnoreCase(user.getEmail()));
+        }
+        return false;
+    }
 
     public UserRepresentation getUserByEmail(String userEmail) {
         System.out.println(userEmail);

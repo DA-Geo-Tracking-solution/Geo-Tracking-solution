@@ -41,11 +41,13 @@ import at.htlhl.geo_tracking_solution.service.UserService;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private ChatService chatService;
     private SquadService squadService;
+    private GroupService groupService;
 
     @Autowired
-    public WebSocketConfig(ChatService chatService, SquadService squadService) {
+    public WebSocketConfig(ChatService chatService, SquadService squadService, GroupService groupService) {
         this.chatService = chatService;
         this.squadService = squadService;
+        this.groupService = groupService;
     }
 
     @Override
@@ -116,10 +118,26 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
             UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor
                     .getUser();
+
             if (!squadService.isUserInSquad(squadId, (String) auth.getPrincipal())) {
-                throw new AuthenticationException("User not authorized to subscribe to " + destination) {
-                };
+                throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
             }
+        } else if (destination != null && destination.startsWith("/topic/geolocation/group/")) {
+            String groupName = destination.substring(25);
+
+            UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor
+                    .getUser();
+            try {
+                boolean hasRequiredRole = auth.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_groupmaster") || role.getAuthority().equals("ROLE_squadmaster"));
+
+                if (!hasRequiredRole || !groupService.isUserInGroup(groupName, (String) auth.getPrincipal())) {
+                    throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
+                }
+            } catch (Exception e) {
+                throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
+            }
+           
         } else if (destination != null && destination.startsWith("/topic/chat/")) {
             UUID chatId = UUID.fromString(destination.substring(12));
 

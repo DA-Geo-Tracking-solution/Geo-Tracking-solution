@@ -1,45 +1,99 @@
 package at.htlhl.geo_tracking_solution.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
-import at.htlhl.geo_tracking_solution.model.Chat;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import at.htlhl.geo_tracking_solution.service.SquadService;
+import at.htlhl.geo_tracking_solution.service.UserService;
 
 import java.util.List;
+import java.util.UUID;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/squadmaster")
 public class SquadmasterController {
 
-    @GetMapping("/squads")
-    @Operation(description = "Returns all Squads of Group")
-    public Object getSquad() {
-        return new Object();
+    private SquadService squadService;
+    private UserService userService;
+
+    @Autowired
+    public SquadmasterController(SquadService squadService, UserService userService) {
+        this.squadService = squadService;
+        this.userService = userService;
+    }
+
+    @PostMapping("/{squadId}/users")
+    @Operation(description = "Adds a user to a squad. The userEmail is provided in the request body.")
+    public ResponseEntity<Void> addUserToSquad(
+            @PathVariable("squadId") UUID squadId,
+            @RequestBody String userEmail) {
+
+        if (!userService.isMember(userEmail)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not in Group");
+        }
+
+        String squadmasterEmail = userService.getUserEmail();
+        if (!squadService.isUserInSquad(squadId, squadmasterEmail)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not in this Squad");
+        }
+
+        try {  
+            squadService.putUserInSquad(userEmail, squadId);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to add user to squad" + e.getMessage(), e);
+        }
+    }
+
+    @DeleteMapping("/{squadId}/users/{userEmail}")
+    @Operation(description = "Removes a user from a squad. The userEmail is specified in the path.")
+    public ResponseEntity<Void> removeUserFromSquad(
+            @PathVariable("squadId") UUID squadId,
+            @PathVariable("userEmail") String userEmail) {
+        
+        if (!userService.isMember(userEmail)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not in Group");
+        }
+
+        String squadmasterEmail = userService.getUserEmail();
+        if (!squadService.isUserInSquad(squadId, squadmasterEmail)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not in this Squad");
+        }
+
+        if (squadmasterEmail.equals(userEmail)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't remove yourself from this Squad");
+        }
+
+        try {
+            squadService.removeUserFromSquad(userEmail, squadId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to remove user from squad", e);
+        }
     }
 
     @PostMapping("/squad")
-    @Operation(description = "Create a squad with squadId and user-emails-array")
-    public String createSquad(@RequestBody Chat chat) {
-        return "not Successful";
-    }
+    @Operation(description = "Creates a squad with an array of user emails")
+    public ResponseEntity<UUID> createSquad(@RequestBody List<String> userEmails) {
+        String squadmasterEmail = userService.getUserEmail();
+        if (!userEmails.contains(squadmasterEmail)) {
+            userEmails.add(squadmasterEmail);
+        }
 
-    @PutMapping("/squad/{squadId}")
-    @Operation(description = "Edit a squad and its user-emails-array")
-    public String editSquad(@PathVariable String squadId, @RequestBody Chat chat) {
-        return "not Successful";
+        try {
+            UUID squadId = squadService.createSquad(userEmails);
+            return ResponseEntity.status(HttpStatus.CREATED).body(squadId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create squad", e);
+        }
     }
-
-    @PostMapping("/Polygon")
-    @Operation(description = "Add polygon corners in format { longitude, latitude }")
-    public String addPolygon(Object Polygon) {
-        return "not Successful";
-    }
-
-    @PostMapping("/Circle")
-    @Operation(description = "Add Circle in format { { longitude, latitude }, radius }")
-    public String addCircle(Object coordinates, double radius) {
-        return  "not successful";
-    }
-
 }

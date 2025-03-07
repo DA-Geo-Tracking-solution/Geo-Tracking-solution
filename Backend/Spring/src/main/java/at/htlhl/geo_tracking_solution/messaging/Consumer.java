@@ -21,6 +21,7 @@ import at.htlhl.geo_tracking_solution.model.GPSData;
 import at.htlhl.geo_tracking_solution.model.UserBySquad;
 import at.htlhl.geo_tracking_solution.model.GPSData.GPSDataKey;
 import at.htlhl.geo_tracking_solution.service.GPSDataService;
+import at.htlhl.geo_tracking_solution.service.GroupService;
 import at.htlhl.geo_tracking_solution.service.SquadService;
 import at.htlhl.geo_tracking_solution.service.UserService;
 
@@ -40,13 +41,15 @@ public class Consumer {
     private final String keycloakIssuerUri = "http://localhost:8081/realms/geo-tracking-solution";
     private SquadService squadService;
     private UserService userService;
+    private GroupService groupService;
     private final SimpMessagingTemplate messagingTemplate;
     
     
     @Autowired
-    public Consumer(SimpMessagingTemplate messagingTemplate, SquadService squadService, UserService userService) {
+    public Consumer(SimpMessagingTemplate messagingTemplate, SquadService squadService, UserService userService, GroupService groupService) {
         this.squadService = squadService;
         this.userService = userService;
+        this.groupService = groupService;
         this.messagingTemplate = messagingTemplate;
     }
 
@@ -103,6 +106,7 @@ public class Consumer {
                 System.out.println("/topic/geolocation/squad/" + userBySquad.getKey().getSquadId());
                 messagingTemplate.convertAndSend("/topic/geolocation/squad/" + userBySquad.getKey().getSquadId(), gpsData);
             }
+            messagingTemplate.convertAndSend("/topic/geolocation/group/" + groupService.getGroupNameFromUser(userEmail), gpsData);
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
         }

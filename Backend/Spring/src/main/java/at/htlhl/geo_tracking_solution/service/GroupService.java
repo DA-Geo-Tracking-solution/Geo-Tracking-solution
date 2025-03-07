@@ -120,12 +120,32 @@ public class GroupService {
                 .toList();
     }
 
-    private GroupRepresentation getGroupFromName(String groupName) throws Exception{
-        List<GroupRepresentation> groups = keycloak.realm(realm).groups().groups(groupName, 0, 1);
-        if (groups.isEmpty()) {
-            throw new Exception("Group with name " + groupName + " not found.");
+    public String getGroupNameFromUser(String userEmail) throws Exception {
+        // Search for the user by email
+        List<UserRepresentation> users = keycloak.realm(realm)
+                .users()
+                .search(null, null, null, userEmail, 0, 1);
+        if (users.isEmpty()) {
+            throw new Exception("User with email " + userEmail + " not found.");
         }
-        return groups.get(0);
+        UserRepresentation user = users.get(0);
+    
+        // Retrieve all groups for the user
+        List<GroupRepresentation> userGroups = keycloak.realm(realm)
+                .users()
+                .get(user.getId())
+                .groups();
+    
+    
+        if (userGroups.isEmpty()) {
+            throw new Exception("User with email " + userEmail + " is not in any group.");
+        }
+
+        return userGroups.get(0).getName();
+    }
+
+    public boolean isUserInGroup(String groupName, String userEmail) throws Exception {
+        return getGroupNameFromUser(userEmail).equals(groupName);
     }
 
     private String getUserId() {
