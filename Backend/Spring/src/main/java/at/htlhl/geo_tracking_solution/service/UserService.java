@@ -39,7 +39,6 @@ public class UserService {
 
     public List<UserRepresentation> getGroupMembers() {
         List<GroupRepresentation> groups = getUserGroups();
-
         if (!groups.isEmpty()) {
             String groupId = groups.get(0).getId();
             return keycloak.realm(realm).groups().group(groupId).members().stream()
@@ -51,7 +50,6 @@ public class UserService {
 
     public boolean isMember(String userEmail) {
         List<GroupRepresentation> groups = getUserGroups();
-    
         if (!groups.isEmpty()) {
             String groupId = groups.get(0).getId();
             return keycloak.realm(realm).groups().group(groupId).members().stream()
@@ -85,8 +83,6 @@ public class UserService {
                 return ("Username or Email already in Use!");
             } else if (status == 201) {
                 return "Successful created user :)";
-                // String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$",
-                // "$1");
             } else {
                 String errorResponse = response.readEntity(String.class);
                 System.err.println("Error response from Keycloak: " + errorResponse);
@@ -105,20 +101,15 @@ public class UserService {
 
     public String updateUser(User userModel) throws ResponseStatusException {
         try {
-
-
-            System.out.println(getUserEmail() + "---  ,  ---" + userModel.getEmail());
             if (getUserByEmail(userModel.getEmail()) != null && !getUserEmail().equals(userModel.getEmail())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Email alrady exists");
             }
 
             // Find the user by ID
             UserRepresentation user = keycloak.realm(realm).users().get(getUserId()).toRepresentation();
-    
             if (user == null) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "User not found");
             }
-    
             String userId = user.getId();
     
             // Update user details with userModel values
@@ -141,13 +132,11 @@ public class UserService {
     public String updatePassword(String password) {
         try {
             UserRepresentation user = keycloak.realm(realm).users().get(getUserId()).toRepresentation();
-        
             if (user == null) {
                 return "User not found";
             }
 
             String userId = user.getId();
-
             // Update the user's password
             if (password != null && !password.isEmpty()) {
                 CredentialRepresentation credential = new CredentialRepresentation();
@@ -164,8 +153,6 @@ public class UserService {
         }
     }
     
-    
-
     public String deleteUserByEmail(String userEmail) {
         try {
             String userId = getUserByEmail(userEmail).getId();

@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import at.htlhl.geo_tracking_solution.model.Chat;
-import at.htlhl.geo_tracking_solution.model.ChatByUser;
-import at.htlhl.geo_tracking_solution.model.UserByChat;
 import at.htlhl.geo_tracking_solution.model.Chat.Member;
-import at.htlhl.geo_tracking_solution.model.UserByChat.UserByChatKey;
+import at.htlhl.geo_tracking_solution.model.cassandra.ChatByUser;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserByChat;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserByChat.UserByChatKey;
 import at.htlhl.geo_tracking_solution.repositories.ChatByUserRepository;
 import at.htlhl.geo_tracking_solution.repositories.UserByChatRepository;
 
@@ -41,16 +41,15 @@ public class ChatService {
     } 
 
     public boolean isUserInChat(UUID chatId, String userEmail) {
-        System.out.println("@Query(\"SELECT user_email FROM users_by_chat WHERE chat_id = " + chatId + " AND user_email = " + userEmail + " LIMIT 1\")");
         return usersByChatRepository.isUserInChat(chatId, userEmail).size() == 1;
     }
 
     public Chat createChat(String chatName, List<String> userEmails) throws ResponseStatusException{
         UUID chatId = UUID.randomUUID();
         try {
-            // Inserts if uuid not exists else throws error
-            if (usersByChatRepository.doesChatIdExist(chatId).isPresent()) {
-                throw new Exception();
+            // Generate Unique chatID
+            while (usersByChatRepository.doesChatIdExist(chatId).isPresent()) {
+                chatId = UUID.randomUUID();
             }
 
             List<Member> members = new ArrayList<>();
@@ -70,27 +69,34 @@ public class ChatService {
             for (String userEmail: userEmails) {
                 revertUsersByChat(userEmail, chatId);
             }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to update chat associations, changes rolled back." + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create chat, changes rolled back." + e.getMessage());
         }
     }
 
-
-
-    public void putUserInChat(String userEmail, UUID chatId, String chatName) throws ResponseStatusException{
+    public Chat putUserInChat(String userEmail, UUID chatId, String chatName) throws ResponseStatusException{
+        if (!isUserInChat(chatId, userService.getUserEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Permission Denied: You are not in this Chat");
+        }
         try {
-            // Inserts only if uuid exist else throws error
+            // Inserts only if chatId exist else throws error
             if (!usersByChatRepository.doesChatIdExist(chatId).isPresent()) {
                 throw new Exception();
             }
             usersByChatRepository.insertIfNotExists(chatId, userEmail);
             chatsByUserRepository.insertIfNotExists(userEmail, chatId, chatName);
 
+            List<Member> members = new ArrayList<>();
+            for (UserByChat userByChat: getUsersInChat(chatId)) {
+                String memberEmail = userByChat.getKey().getUserEmail();
+                UserRepresentation user = userService.getUserByEmail(memberEmail);
+                members.add(new Member(user.getUsername(), memberEmail));
+            }
+            return new Chat(chatId, chatName, members);
         } catch (Exception e) {
             // Undo changes if one fails
             revertUsersByChat(userEmail, chatId);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to update chat associations, changes rolled back.");
         }
-        
     }
 
     private void revertUsersByChat(String userEmail, UUID chatId) {

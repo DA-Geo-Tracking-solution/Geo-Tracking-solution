@@ -6,18 +6,18 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import at.htlhl.geo_tracking_solution.model.UserBySquad;
-import at.htlhl.geo_tracking_solution.model.UserBySquad.UserBySquadKey;
-import at.htlhl.geo_tracking_solution.repositories.SquadRepository;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserBySquad;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserBySquad.UserBySquadKey;
+import at.htlhl.geo_tracking_solution.repositories.UserBySquadRepository;
 
 @Service
 public class SquadService {
 
     private final UserService userService;
-    private final SquadRepository squadRepository;
+    private final UserBySquadRepository squadRepository;
 
     @Autowired
-    public SquadService(UserService userService, SquadRepository squadRepository) {
+    public SquadService(UserService userService, UserBySquadRepository squadRepository) {
         this.userService = userService;
         this.squadRepository = squadRepository;
     }

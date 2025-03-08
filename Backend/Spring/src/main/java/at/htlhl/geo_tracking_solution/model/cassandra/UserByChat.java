@@ -1,4 +1,4 @@
-package at.htlhl.geo_tracking_solution.model;
+package at.htlhl.geo_tracking_solution.model.cassandra;
 
 import org.springframework.data.cassandra.core.mapping.Table;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;

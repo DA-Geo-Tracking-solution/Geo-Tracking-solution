@@ -27,14 +27,11 @@ import at.htlhl.geo_tracking_solution.model.Role;
 @Service
 public class GroupService {
 
-    @Value("${keycloak.realm}")
-    private String realm;
-
     @Autowired
     private Keycloak keycloak;
 
-    //public static final List<String> ALL_ROLE_NAMES = Arrays.asList("member", "squadmaster", "groupmaster");
-    
+    @Value("${keycloak.realm}")
+    private String realm;
 
     public UserResource addUserToGroup(UserRepresentation user, GroupRepresentation group) throws Exception {
         RealmResource realmResource = keycloak.realm(realm);
@@ -46,7 +43,6 @@ public class GroupService {
             System.out.println("User removed from group: " + group.getName());
         }
         userResource.joinGroup(group.getId());
-
         return userResource;
     }
 
@@ -57,19 +53,16 @@ public class GroupService {
         if (users.isEmpty()) {
             throw new Exception("User with email " + userEmail + " in this group not found.");
         }
-
         return addUserToGroup(users.get(0), group);
     }
 
     public void addUserToGroupWithRoles(UserRepresentation user, GroupRepresentation group, List<String> roleNames) throws Exception {
         UserResource userResource = addUserToGroup(user, group);
-
-        // Assign roles to the user
         List<RoleRepresentation> roles = rolesByRoleNames(roleNames);
         userResource.roles().realmLevel().add(roles);
     }
 
-     public GroupRepresentation createSubGroupWithRoles(String groupName) throws Exception {
+    public GroupRepresentation createSubGroupWithRoles(String groupName) throws Exception {
         GroupsResource groupsResource = keycloak.realm(realm).groups();
 
         // Find the parent group
@@ -81,7 +74,6 @@ public class GroupService {
             .filter(group -> group.getName().equals(groups.get(0).getName())).findFirst()
             .orElseThrow(() -> new Exception("Parent group does not exist!"));
 
-
         // Create a new subgroup
         GroupResource parentGroupResource = groupsResource.group(parentGroup.getId());
         if (parentGroupResource.getSubGroups(0, null, true).stream().anyMatch(subGroup -> subGroup.getName().equals(groupName))) {
@@ -92,7 +84,7 @@ public class GroupService {
         parentGroupResource.subGroup(newSubGroup);
 
         // Add roles to subgroup
-        GroupRepresentation createdSubGroup = parentGroupResource.getSubGroups(0, null, true) // if more information needed change true to false
+        GroupRepresentation createdSubGroup = parentGroupResource.getSubGroups(0, null, true)
             .stream().filter(subGroup -> subGroup.getName().equals(groupName)).findFirst().orElse(null);
         List<RoleRepresentation> roles = rolesByRoleNames(Role.getAll());
         groupsResource.group(createdSubGroup.getId()).roles().realmLevel().add(roles);
@@ -106,7 +98,6 @@ public class GroupService {
 
     public List<UserRepresentation> getGroupMembers() {
         List<GroupRepresentation> groups = getUserGroups();
-
         if (!groups.isEmpty()) {
             String groupId = groups.get(0).getId();
             return keycloak.realm(realm).groups().group(groupId).members();
@@ -116,8 +107,7 @@ public class GroupService {
 
     private List<RoleRepresentation> rolesByRoleNames(List<String> roleNames) {
         return keycloak.realm(realm).roles().list().stream()
-                .filter(role -> roleNames.contains(role.getName()))
-                .toList();
+                .filter(role -> roleNames.contains(role.getName())).toList();
     }
 
     public String getGroupNameFromUser(String userEmail) throws Exception {
@@ -131,11 +121,7 @@ public class GroupService {
         UserRepresentation user = users.get(0);
     
         // Retrieve all groups for the user
-        List<GroupRepresentation> userGroups = keycloak.realm(realm)
-                .users()
-                .get(user.getId())
-                .groups();
-    
+        List<GroupRepresentation> userGroups = keycloak.realm(realm).users().get(user.getId()).groups();
     
         if (userGroups.isEmpty()) {
             throw new Exception("User with email " + userEmail + " is not in any group.");

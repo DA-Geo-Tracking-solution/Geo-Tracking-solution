@@ -9,8 +9,8 @@ import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import at.htlhl.geo_tracking_solution.model.UserByChat;
-import at.htlhl.geo_tracking_solution.model.UserByChat.UserByChatKey;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserByChat;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserByChat.UserByChatKey;
 
 @Repository
 public interface UserByChatRepository extends CassandraRepository<UserByChat, UserByChatKey> {
@@ -25,8 +25,6 @@ public interface UserByChatRepository extends CassandraRepository<UserByChat, Us
     Optional<UUID> doesChatIdExist(UUID chatId);
     
 
-
     @Query("INSERT INTO users_by_chat (chat_id, user_email) VALUES (?0, ?1) IF NOT EXISTS")
     boolean insertIfNotExists(UUID chatId, String userEmail);
-
 }

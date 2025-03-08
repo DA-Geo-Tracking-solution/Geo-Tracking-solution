@@ -24,7 +24,7 @@ public class SecurityConfig {
                     .requestMatchers("/member/**").hasRole("member")
                     .requestMatchers("/squadmaster/**").hasRole("squadmaster")
                     .requestMatchers("/groupmaster/**").hasRole("groupmaster")
-                    .requestMatchers("/v3/**", "/swagger-ui/**").denyAll()
+                    .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
                     .anyRequest().authenticated()
             )
             .oauth2ResourceServer(auth ->

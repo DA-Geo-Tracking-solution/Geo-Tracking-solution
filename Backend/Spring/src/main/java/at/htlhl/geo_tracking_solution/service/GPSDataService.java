@@ -3,7 +3,7 @@ package at.htlhl.geo_tracking_solution.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import at.htlhl.geo_tracking_solution.model.GPSData;
+import at.htlhl.geo_tracking_solution.model.cassandra.GPSData;
 import at.htlhl.geo_tracking_solution.repositories.GPSDataRepository;
 
 import java.time.Instant;

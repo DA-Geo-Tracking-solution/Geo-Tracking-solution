@@ -36,7 +36,6 @@ public class GroupmasterController {
     @PostMapping("/user")
     @Operation(description = "Creates new user in format { {username, userEmail, firstname, lastname}, temporaryPassword } in group")
     public String createUser(@RequestBody Map<String, Object> request) {
-        
         User userModel = User.MapToUser((Map<String, Object>) request.get("user"));
         String temporaryPassword = (String) request.get("temporaryPassword");
 
@@ -44,7 +43,7 @@ public class GroupmasterController {
     }
 
     @PostMapping("/subgroup")
-    @Operation(description = "Creates new subrgoup in format { name, groupmasterEmail, [ memberEmails ] } and adds a groupmaster")
+    @Operation(description = "Creates new subgroup in format { name, groupmasterEmail, [ memberEmails ] } and adds a groupmaster")
     public String createSubGroup(@RequestBody Map<String, Object> request) {
         String name = (String) request.get("name");
         String groupmasterEmail = (String) request.get("groupmasterEmail");
@@ -79,11 +78,5 @@ public class GroupmasterController {
     @Operation(description = "Deletes user by { userEmail } in group")
     public String deleteUser(@PathVariable("userEmail") String userEmail) {
         return "{ \"message\": \"" + userService.deleteUserByEmail(userEmail) + "\" }";
-    }
-
-    @GetMapping("/subgroups")
-    @Operation(description = "optionally")
-    public Object getSubGroups() {
-        return "get all subgroups as a tree (not implemented)";
     }
 }

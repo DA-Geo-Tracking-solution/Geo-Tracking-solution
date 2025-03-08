@@ -10,16 +10,16 @@ import org.springframework.data.cassandra.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import at.htlhl.geo_tracking_solution.model.ChatByUser;
 import at.htlhl.geo_tracking_solution.model.ChatMessage;
 import at.htlhl.geo_tracking_solution.model.SquadData;
-import at.htlhl.geo_tracking_solution.model.UserByChat;
-import at.htlhl.geo_tracking_solution.model.UserBySquad;
-import at.htlhl.geo_tracking_solution.model.ChatByUser.ChatByUserKey;
-import at.htlhl.geo_tracking_solution.model.MessageByChat.MessageByChatKey;
-import at.htlhl.geo_tracking_solution.model.UserBySquad.UserBySquadKey;
+import at.htlhl.geo_tracking_solution.model.cassandra.ChatByUser;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserByChat;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserBySquad;
+import at.htlhl.geo_tracking_solution.model.cassandra.ChatByUser.ChatByUserKey;
+import at.htlhl.geo_tracking_solution.model.cassandra.MessageByChat.MessageByChatKey;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserBySquad.UserBySquadKey;
 
-public interface SquadRepository extends CassandraRepository<UserBySquad, UserBySquadKey> {
+public interface UserBySquadRepository extends CassandraRepository<UserBySquad, UserBySquadKey> {
 
     @Query("SELECT * FROM users_by_squad WHERE squad_id = ?0")
     List<UserBySquad> getUsers(UUID squadId);

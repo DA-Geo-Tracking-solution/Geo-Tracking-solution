@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import at.htlhl.geo_tracking_solution.model.ChatMessage;
-import at.htlhl.geo_tracking_solution.model.MessageByChat;
+import at.htlhl.geo_tracking_solution.model.cassandra.MessageByChat;
 import at.htlhl.geo_tracking_solution.repositories.MessageByChatRepository;
 
 @Service

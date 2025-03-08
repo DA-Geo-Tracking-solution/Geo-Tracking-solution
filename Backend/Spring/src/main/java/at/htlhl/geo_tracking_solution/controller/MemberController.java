@@ -1,7 +1,6 @@
 package at.htlhl.geo_tracking_solution.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.apache.james.mime4j.dom.datetime.DateTime;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,29 +9,24 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import at.htlhl.geo_tracking_solution.model.Chat;
-import at.htlhl.geo_tracking_solution.model.ChatByUser;
-import at.htlhl.geo_tracking_solution.model.ChatMessage;
-import at.htlhl.geo_tracking_solution.model.GPSData;
-import at.htlhl.geo_tracking_solution.model.MessageByChat;
-import at.htlhl.geo_tracking_solution.model.SquadData;
-import at.htlhl.geo_tracking_solution.model.UserByChat;
-import at.htlhl.geo_tracking_solution.model.UserBySquad;
 import at.htlhl.geo_tracking_solution.model.Chat.Member;
-import at.htlhl.geo_tracking_solution.model.MessageByChat.MessageByChatKey;
+import at.htlhl.geo_tracking_solution.model.cassandra.ChatByUser;
+import at.htlhl.geo_tracking_solution.model.cassandra.GPSData;
+import at.htlhl.geo_tracking_solution.model.cassandra.MessageByChat;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserByChat;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserBySquad;
+import at.htlhl.geo_tracking_solution.model.cassandra.MessageByChat.MessageByChatKey;
 import at.htlhl.geo_tracking_solution.model.keycloak.User;
 import at.htlhl.geo_tracking_solution.service.ChatService;
 import at.htlhl.geo_tracking_solution.service.GPSDataService;
-import at.htlhl.geo_tracking_solution.service.GroupService;
 import at.htlhl.geo_tracking_solution.service.MessageService;
 import at.htlhl.geo_tracking_solution.service.SquadService;
 import at.htlhl.geo_tracking_solution.service.UserService;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @CrossOrigin(origins = "*")
@@ -40,7 +34,6 @@ import java.util.UUID;
 @RequestMapping("/member")
 public class MemberController {
 
-    private GroupService groupService;
     private SquadService squadService;
     private UserService userService;
     private GPSDataService gpsDataService;
@@ -50,14 +43,12 @@ public class MemberController {
 
     @Autowired
     public MemberController(
-            GroupService groupService,
             SquadService squadService,
             UserService userService,
             GPSDataService gpsDataService,
             ChatService chatService,
             MessageService messageService,
             SimpMessagingTemplate messagingTemplate) {
-        this.groupService = groupService;
         this.squadService = squadService;
         this.userService = userService;
         this.gpsDataService = gpsDataService;
@@ -92,14 +83,7 @@ public class MemberController {
         String message = userService.updateUser(userModel);
         return "{ \"message\": \"" + message + "\" }";
     }
-
-    @GetMapping("/user-location")
-    @Operation(description = "Returns some users location data in format { userEmail, { longitude, latitude }, timestamp } of your group")
-    public List<GPSData> getCoordinates(@RequestParam String userEmail, @RequestParam Instant earliestTime) {
-        return gpsDataService.getGPSDataOf(userEmail, earliestTime);
-        // return gpsDataService.getAllGPSData();
-    }
-
+    
     @GetMapping("/group-members-locations")
     @Operation(description = "Returns some users location data in format { userEmail, { longitude, latitude }, timestamp } of your group")
     public List<GPSData> getGroupmembersCoordinates(@RequestParam Instant earliestTime) {
@@ -118,7 +102,6 @@ public class MemberController {
         List<GPSData> userLocations = new ArrayList<>();
         List<String> userEmails = new ArrayList<>();
         
-        // System.out.println(userService.getGroupMembers());
         for (UserBySquad squad : squadService.getSquadsFromUser(userService.getUserEmail())) {
             List<String> userEmailsInSquad = new ArrayList<>();
             for (UserBySquad user : squadService.getUsersInSquad(squad.getKey().getSquadId())) {
@@ -133,7 +116,6 @@ public class MemberController {
             }
             userEmails.addAll(userEmailsInSquad);
         }
-
         return userLocations;
     }
 
@@ -143,7 +125,7 @@ public class MemberController {
         return squadService.getSquadsFromUser(userService.getUserEmail());
     }
 
-    @GetMapping("/chats") // Todo chats: user hinzufügen, editieren
+    @GetMapping("/chats")
     @Operation(description = "Returns all chats a user has in format { chatId, chatName, [member] }")
     public List<Chat> getChats() {
         // Todo better Performance
@@ -201,12 +183,6 @@ public class MemberController {
 
     }
 
-    @PutMapping("/chat/{chatId}")
-    @Operation(description = "Edit a chat and its user-emails-array")
-    public String editChat() throws ResponseStatusException{
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "not implemented!");
-    }
-
     @PatchMapping("/chat/{chatId}/user")
     @Operation(description = "Puts a user in a chat in format { userEmail, chatName } as well if chat does not exist")
     public String putUserInChat(@PathVariable("chatId") UUID chatId, @RequestBody Map<String, String> request) throws ResponseStatusException{
@@ -219,9 +195,9 @@ public class MemberController {
             chatName = "Unkown ChatName";
         }
         
-        chatService.putUserInChat(userEmail, chatId, chatName);
+        Chat chat = chatService.putUserInChat(userEmail, chatId, chatName);
+        messagingTemplate.convertAndSend("/topic/chatCreation/" + userEmail,  chat);
         return "updated Succesfully";
-       
     }
 
     @GetMapping("chat/{chatId}/messages")

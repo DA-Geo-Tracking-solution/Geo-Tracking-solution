@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { userInfo } from 'os';
 import User from '../../classes/User';
+import { RestService } from '../REST/rest.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,30 +10,23 @@ export class AreaService {
 
   private usersindrawings: { [key: number]: User[] } = [];
 
-  constructor() { }
+  constructor(private restService: RestService) { }
+
   haveUserData(userdata: User, multibledrawingdata: any) {
     for (const singledrawingdata of multibledrawingdata) {
       if (singledrawingdata.type === "Polygon") {
         const index = multibledrawingdata.indexOf(singledrawingdata);
         if (this.calculateInPolygon([userdata.location.latitude, userdata.location.longitude], singledrawingdata.coordinates)) {
-          console.log("in poly")
           if (!this.usersindrawings[index].some(user => user.userEmail === userdata.userEmail)) {
-            console.log("user wasn't in polygon")
             this.usersindrawings[index].push(userdata);
             this.userInDrawing(userdata.userEmail, index);
-          }else{
-            console.log("still in polygon")
           }
           //check, if user alredy in polygon
           //if not add and userInDrawing()
         } else {
-          console.log("out poly")
           if (this.usersindrawings[index].some(user => user.userEmail === userdata.userEmail)) {
-            console.log("was inside Polygon now out")
             this.usersindrawings[index] = this.usersindrawings[index].filter(user => user.userEmail !== userdata.userEmail);
             this.userOutDrawing(userdata.userEmail, index);
-          }else{
-            console.log("still out polygon")
           }
           //check, if user was in polygon
           //if remove and userOutDrawing()
@@ -56,6 +50,7 @@ export class AreaService {
           allUsersInDrawing.push(users[index]);
         }
       }
+      const uuid = this.createSquad(allUsersInDrawing);
       this.usersindrawings[Object.keys(this.usersindrawings).length] = allUsersInDrawing;
       console.log(this.usersindrawings)
     } else {
@@ -113,12 +108,31 @@ export class AreaService {
     return toDeg(c);
   }
 
-  userInDrawing(user: string, drawing: number) {
-    console.log(user + " went into " + drawing)
+  createSquad(users: User[]): string {
+
+    return "11111111-1111-1111-1111-111111111111"
+  }
+
+  userInDrawing(userEmail: string, drawing: number) {
+    console.log(userEmail + " went into " + drawing)
+    this.restService.POST("squadmaster/11111111-1111-1111-1111-111111111111/users", {
+      userEmail
+    }).then(observable => {
+      observable.subscribe({
+        next: () => console.log("Successfully added User to Squad! ;)"),
+        error: (err) => console.error("Error:", err)
+      });
+    });
     //not my business
   }
-  userOutDrawing(user: string, drawing: any) {
-    console.log(user + " went out of " + drawing)
+  userOutDrawing(userEmail: string, drawing: any) {
+    console.log(userEmail + " went out of " + drawing)
+    this.restService.DELETE(`squadmaster/11111111-1111-1111-1111-111111111111/users/${userEmail}`).then(observable => {
+      observable.subscribe({
+        next: () => console.log("Successfully removed User from Squad! ;)"),
+        error: (err) => console.error("Error:", err)
+      });
+    });
     //not my business
   }
 }

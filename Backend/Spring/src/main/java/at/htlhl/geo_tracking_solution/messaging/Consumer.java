@@ -17,9 +17,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.stereotype.Component;
 
 import at.htlhl.geo_tracking_solution.config.KeycloakJwtAuthenticationConverter;
-import at.htlhl.geo_tracking_solution.model.GPSData;
-import at.htlhl.geo_tracking_solution.model.UserBySquad;
-import at.htlhl.geo_tracking_solution.model.GPSData.GPSDataKey;
+import at.htlhl.geo_tracking_solution.model.cassandra.GPSData;
+import at.htlhl.geo_tracking_solution.model.cassandra.UserBySquad;
+import at.htlhl.geo_tracking_solution.model.cassandra.GPSData.GPSDataKey;
 import at.htlhl.geo_tracking_solution.service.GPSDataService;
 import at.htlhl.geo_tracking_solution.service.GroupService;
 import at.htlhl.geo_tracking_solution.service.SquadService;
