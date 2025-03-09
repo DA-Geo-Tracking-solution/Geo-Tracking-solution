@@ -37,7 +37,6 @@ export class VectorMapService {
     let uniqueUsers: User[] = [];
     if (this.map) {
       for (const user of users) {
-        this.areaService.haveUserData(user, this.drawingCoordinates);
         const existingUser = uniqueUsers.find(u => u.userEmail === user.userEmail);
 
         if (existingUser) {
@@ -55,6 +54,9 @@ export class VectorMapService {
           const marker = new maplibregl.Marker().setLngLat([user.location.longitude, user.location.latitude]).addTo(this.map);
           this.vectormarkers[user.userEmail] = marker;
         }
+      }
+      for (const uniqueUser of uniqueUsers) {
+        this.areaService.haveUserData(uniqueUser, this.drawingCoordinates);
       }
       if (Object.keys(this.vectormarkers).length > users.length) {
         for (const key of Object.keys(this.vectormarkers)) {

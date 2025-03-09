@@ -8,7 +8,7 @@ import { RestService } from '../REST/rest.service';
 })
 export class AreaService {
 
-  private usersindrawings: { [key: number]: User[] } = [];
+  private usersindrawings: { [key: number]: [User[], string] } = [];
 
   constructor(private restService: RestService) { }
 
@@ -17,15 +17,15 @@ export class AreaService {
       if (singledrawingdata.type === "Polygon") {
         const index = multibledrawingdata.indexOf(singledrawingdata);
         if (this.calculateInPolygon([userdata.location.latitude, userdata.location.longitude], singledrawingdata.coordinates)) {
-          if (!this.usersindrawings[index].some(user => user.userEmail === userdata.userEmail)) {
-            this.usersindrawings[index].push(userdata);
+          if (!this.usersindrawings[index][0].some(user => user.userEmail === userdata.userEmail)) {
+            this.usersindrawings[index][0].push(userdata);
             this.userInDrawing(userdata.userEmail, index);
           }
           //check, if user alredy in polygon
           //if not add and userInDrawing()
         } else {
-          if (this.usersindrawings[index].some(user => user.userEmail === userdata.userEmail)) {
-            this.usersindrawings[index] = this.usersindrawings[index].filter(user => user.userEmail !== userdata.userEmail);
+          if (this.usersindrawings[index][0].some(user => user.userEmail === userdata.userEmail)) {
+            this.usersindrawings[index][0] = this.usersindrawings[index][0].filter(user => user.userEmail !== userdata.userEmail);
             this.userOutDrawing(userdata.userEmail, index);
           }
           //check, if user was in polygon
@@ -50,9 +50,20 @@ export class AreaService {
           allUsersInDrawing.push(users[index]);
         }
       }
-      const uuid = this.createSquad(allUsersInDrawing);
-      this.usersindrawings[Object.keys(this.usersindrawings).length] = allUsersInDrawing;
-      console.log(this.usersindrawings)
+      console.log(Object.keys(this.usersindrawings).length)
+      console.log(this.usersindrawings[Object.keys(this.usersindrawings).length])
+
+      const index = Object.keys(this.usersindrawings).length
+      this.usersindrawings[index] = [[], ""];
+      this.usersindrawings[index][0] = allUsersInDrawing;
+      const userEmails = allUsersInDrawing.map(userInDrawing => userInDrawing.userEmail);
+      console.log("post squadmaster/squad")
+      this.restService.POST(`squadmaster/squad`, userEmails).then(observable => {
+        observable.subscribe({
+          next: (uuid) => {this.usersindrawings[index][1] = uuid; console.log(uuid)},
+          error: (err) => console.error("Error:", err)
+        });
+      });
     } else {
       for (const user in users) {
         console.log(user);
@@ -108,31 +119,24 @@ export class AreaService {
     return toDeg(c);
   }
 
-  createSquad(users: User[]): string {
-
-    return "11111111-1111-1111-1111-111111111111"
-  }
-
   userInDrawing(userEmail: string, drawing: number) {
     console.log(userEmail + " went into " + drawing)
-    this.restService.POST("squadmaster/11111111-1111-1111-1111-111111111111/users", {
-      userEmail
-    }).then(observable => {
+    const uuid = this.usersindrawings[drawing][1];
+    this.restService.POST(`squadmaster/${uuid}/users`, userEmail).then(observable => {
       observable.subscribe({
         next: () => console.log("Successfully added User to Squad! ;)"),
         error: (err) => console.error("Error:", err)
       });
     });
-    //not my business
   }
   userOutDrawing(userEmail: string, drawing: any) {
     console.log(userEmail + " went out of " + drawing)
-    this.restService.DELETE(`squadmaster/11111111-1111-1111-1111-111111111111/users/${userEmail}`).then(observable => {
+    const uuid = this.usersindrawings[drawing][1];
+    this.restService.DELETE(`squadmaster/${uuid}/users/${userEmail}`).then(observable => {
       observable.subscribe({
         next: () => console.log("Successfully removed User from Squad! ;)"),
         error: (err) => console.error("Error:", err)
       });
     });
-    //not my business
   }
 }

@@ -21,11 +21,7 @@ import at.htlhl.geo_tracking_solution.model.keycloak.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-//import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
 @Service
@@ -94,8 +90,7 @@ public class UserService {
     }
 
     public void addRolesToUser(String userEmail, List<String> roles) {
-        RealmResource realmResource = keycloak.realm(realm);
-        UserResource userResource = realmResource.users().get(getUserByEmail(userEmail).getId());
+        UserResource userResource = keycloak.realm(realm).users().get(getUserByEmail(userEmail).getId());
         userResource.roles().realmLevel().add(Role.getAsRoleList(roles, keycloak, realm));
     }
 
@@ -110,20 +105,15 @@ public class UserService {
             if (user == null) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "User not found");
             }
+
             String userId = user.getId();
-    
-            // Update user details with userModel values
             if (userModel.getFirstname() != null) user.setFirstName(userModel.getFirstname());
             if (userModel.getLastname() != null) user.setLastName(userModel.getLastname());
             if (userModel.getEmail() != null) user.setEmail(userModel.getEmail());
             if (userModel.getUsername() != null) user.setUsername(userModel.getUsername());
 
-            // Send the update request
             keycloak.realm(realm).users().get(userId).update(user);
-    
-            // Return success message
             return "User details updated successfully";
-    
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "An error occurred while updating the user: " + e.getMessage());
         }
@@ -137,14 +127,12 @@ public class UserService {
             }
 
             String userId = user.getId();
-            // Update the user's password
             if (password != null && !password.isEmpty()) {
                 CredentialRepresentation credential = new CredentialRepresentation();
                 credential.setType(CredentialRepresentation.PASSWORD);
                 credential.setValue(password);
                 credential.setTemporary(false);
 
-                // Send the password reset request
                 keycloak.realm(realm).users().get(userId).resetPassword(credential);
             }
             return "Password updated successfully";
@@ -170,12 +158,6 @@ public class UserService {
         }
     }
 
-    private String getUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        return (String) jwt.getClaims().get(StandardClaimNames.SUB);
-    }
-
     public String getUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -188,7 +170,13 @@ public class UserService {
         return (String) jwt.getClaims().get("preferred_username");
     }
 
-    public List<GroupRepresentation> getUserGroups() {
+    private String getUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        return (String) jwt.getClaims().get(StandardClaimNames.SUB);
+    }
+
+    private List<GroupRepresentation> getUserGroups() {
         return keycloak.realm(realm).users().get(getUserId()).groups();
     }
 }
