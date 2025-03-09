@@ -25,7 +25,7 @@ export class RestService {
     console.log('Headers:', headers);
     
     return this.http.get(`${this.url}/${path}`, { headers }).pipe(
-      catchError(this.handleError)
+      catchError((error) => this.handleError(error))
     );
   }
 
@@ -38,7 +38,7 @@ export class RestService {
     console.log('Body:', body);
 
     return this.http.post(`${this.url}/${path}`, body, { headers }).pipe(
-      catchError(this.handleError)
+      catchError((error) => this.handleError(error))
     );
   }
 
@@ -51,7 +51,7 @@ export class RestService {
     console.log('Body:', body);
   
     return this.http.patch(`${this.url}/${path}`, body, { headers }).pipe(
-      catchError(this.handleError)
+      catchError((error) => this.handleError(error))
     );
   }
 
@@ -63,17 +63,16 @@ export class RestService {
     console.log('Headers:', headers);
   
     return this.http.delete(`${this.url}/${path}`, { headers }).pipe(
-      catchError(this.handleError)
+      catchError((error) => this.handleError(error))
     );
   }
-
 
   // Fehlerbehandlung
   private handleError(error: HttpErrorResponse) {
     // Ensure that error.error contains the JSON response
     const errorResponse = error.error;
-    const errorMessage = errorResponse?.message || 'Unknown error';
-    const errorTitle = errorResponse?.error || 'Error';
+    const errorMessage: string = errorResponse?.message || 'Unknown error';
+    const errorTitle: string = errorResponse?.error || 'Error';
 
     // Now open the error dialog with the extracted values
     console.log(`this.errorDialogService.openErrorDialog(${errorTitle}, ${errorMessage});`)

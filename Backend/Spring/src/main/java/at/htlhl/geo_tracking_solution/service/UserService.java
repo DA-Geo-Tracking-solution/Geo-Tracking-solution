@@ -158,6 +158,10 @@ public class UserService {
         }
     }
 
+    public List<GroupRepresentation> getUserGroups() {
+        return keycloak.realm(realm).users().get(getUserId()).groups();
+    }
+
     public String getUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -174,9 +178,5 @@ public class UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
         return (String) jwt.getClaims().get(StandardClaimNames.SUB);
-    }
-
-    private List<GroupRepresentation> getUserGroups() {
-        return keycloak.realm(realm).users().get(getUserId()).groups();
     }
 }

@@ -11,9 +11,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import at.htlhl.geo_tracking_solution.model.cassandra.GPSData;
+import at.htlhl.geo_tracking_solution.service.GPSDataService;
 import at.htlhl.geo_tracking_solution.service.SquadService;
 import at.htlhl.geo_tracking_solution.service.UserService;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,12 +27,30 @@ import java.util.UUID;
 public class SquadmasterController {
 
     private SquadService squadService;
+    private GPSDataService gpsDataService;
     private UserService userService;
 
     @Autowired
-    public SquadmasterController(SquadService squadService, UserService userService) {
+    public SquadmasterController(SquadService squadService, GPSDataService gpsDataService, UserService userService) {
         this.squadService = squadService;
         this.userService = userService;
+        this.gpsDataService = gpsDataService;
+    }
+
+    @PostMapping("/squad")
+    @Operation(description = "Creates a squad with an array of user emails")
+    public ResponseEntity<UUID> createSquad(@RequestBody List<String> userEmails) {
+        String squadmasterEmail = userService.getUserEmail();
+        if (!userEmails.contains(squadmasterEmail)) {
+            userEmails.add(squadmasterEmail);
+        }
+
+        try {
+            UUID squadId = squadService.createSquad(userEmails);
+            return ResponseEntity.status(HttpStatus.CREATED).body(squadId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create squad", e);
+        }
     }
 
     @PostMapping("/{squadId}/users")
@@ -81,19 +103,13 @@ public class SquadmasterController {
         }
     }
 
-    @PostMapping("/squad")
-    @Operation(description = "Creates a squad with an array of user emails")
-    public ResponseEntity<UUID> createSquad(@RequestBody List<String> userEmails) {
-        String squadmasterEmail = userService.getUserEmail();
-        if (!userEmails.contains(squadmasterEmail)) {
-            userEmails.add(squadmasterEmail);
+    @GetMapping("/group-members-locations")
+    @Operation(description = "Returns some users location data in format { userEmail, { longitude, latitude }, timestamp } of your group")
+    public List<GPSData> getGroupmembersCoordinates(@RequestParam Instant earliestTime) {
+        List<GPSData> userLocations = new ArrayList<>();
+        for (UserRepresentation user : userService.getGroupMembers()) {
+            userLocations.addAll(gpsDataService.getGPSDataOf(user.getEmail(), earliestTime));
         }
-
-        try {
-            UUID squadId = squadService.createSquad(userEmails);
-            return ResponseEntity.status(HttpStatus.CREATED).body(squadId);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create squad", e);
-        }
+        return userLocations;
     }
 }

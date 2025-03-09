@@ -95,13 +95,6 @@ public class Consumer {
 
             System.out.println("[x] Received and saved: " + gpsData);
 
-
-            /* List<GroupRepresentation> groups = userService.getUserGroups();
-            if (groups.isEmpty()) {
-                //return "Invalid Request! User is in no group! >8[)";
-            }
-
-            messagingTemplate.convertAndSend("/topic/geolocation/group/" + groups.get(0).getId(), gpsData);*/
             for (UserBySquad userBySquad: squadService.getSquadsFromUser(userEmail)) {
                 System.out.println("/topic/geolocation/squad/" + userBySquad.getKey().getSquadId());
                 messagingTemplate.convertAndSend("/topic/geolocation/squad/" + userBySquad.getKey().getSquadId(), gpsData);

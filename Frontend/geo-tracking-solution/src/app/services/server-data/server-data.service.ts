@@ -45,8 +45,12 @@ export class ServerDataService {
     this.getData(`member/chat/${chatid}/messages`, `/topic/chat/${chatid}`, callback);
   }
 
-  async getGeoLocationData(squadId: string, earliestTime: string, callback: (Data: any) => void) {
+  async getSquadMemberGeoLocationData(squadId: string, earliestTime: string, callback: (Data: any) => void) {
     this.getData(`member/squad-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation/squad/${squadId}`, callback);
+  }
+
+  async getGroupMemberGeoLocationData(groupName: string, earliestTime: string, callback: (Data: any) => void) {
+    this.getData(`squadmaster/group-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation/group/${groupName}`, callback);
   }
 
   close() {

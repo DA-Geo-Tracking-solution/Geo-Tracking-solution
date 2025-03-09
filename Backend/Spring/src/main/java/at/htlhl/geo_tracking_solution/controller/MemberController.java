@@ -1,6 +1,8 @@
 package at.htlhl.geo_tracking_solution.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -57,6 +60,39 @@ public class MemberController {
         this.messagingTemplate = messagingTemplate;
     }
 
+    // Todo only if in same group
+    @GetMapping("/user/{userEmail}")
+    @Operation(description = "Returns data of specific User (not only users in the same group)")
+    public UserRepresentation getUserByEmail(@PathVariable("userEmail") String userEmail) throws ResponseStatusException{
+        if (userService.isMember(userEmail)) {
+            UserRepresentation user = userService.getUserByEmail(userEmail);
+            return user;
+        } else {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in the same group");
+        }
+    }
+
+    @PatchMapping("/user")
+    @Operation(description = "Edits Userinformation in format { {username, userEmail, firstname, lastname} } of User")
+    public String editUser(@RequestBody Map<String, Object> request) throws ResponseStatusException{
+        User userModel = User.MapToUser((Map<String, Object>) request.get("user"));
+        String message = userService.updateUser(userModel);
+        return "{ \"message\": \"" + message + "\" }";
+    }
+
+    @GetMapping("/group")
+    @Operation(description = "Returns the Group of a User")
+    public String getGroup() throws ResponseStatusException{
+        List<String> groupNames = userService.getUserGroups().stream()
+            .map(GroupRepresentation::getName).collect(Collectors.toList());
+
+        if (!groupNames.isEmpty()) {
+            return "\"" + groupNames.get(0) + "\"";
+        } else {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is in no Group");
+        }
+    }
+
     @GetMapping("/group-members")
     @Operation(description = "Returns a List of all members in the group of the requester in format { username, email, firstname, lastname }")
     public List<User> getGroupMembers() {
@@ -68,32 +104,10 @@ public class MemberController {
         return users;
     }
 
-    @GetMapping(path = "/user/{userEmail}")
-    @Operation(description = "Returns data of specific User (not only users in the same group)")
-    public UserRepresentation getUserByEmail(@PathVariable("userEmail") String userEmail) {
-        UserRepresentation user = userService.getUserByEmail(userEmail);
-        return user;
-    }
-
-    @PatchMapping("/user")
-    @Operation(description = "Edits Userinformation in format { {username, userEmail, firstname, lastname} } of User")
-    public String editUser(@RequestBody Map<String, Object> request) throws ResponseStatusException{
-        
-        User userModel = User.MapToUser((Map<String, Object>) request.get("user"));
-        String message = userService.updateUser(userModel);
-        return "{ \"message\": \"" + message + "\" }";
-    }
-    
-    @GetMapping("/group-members-locations")
-    @Operation(description = "Returns some users location data in format { userEmail, { longitude, latitude }, timestamp } of your group")
-    public List<GPSData> getGroupmembersCoordinates(@RequestParam Instant earliestTime) {
-        List<GPSData> userLocations = new ArrayList<>();
-        System.out.println(userService.getGroupMembers());
-        for (UserRepresentation user : userService.getGroupMembers()) {
-            System.out.println("Helo" + user.getEmail());
-            userLocations.addAll(gpsDataService.getGPSDataOf(user.getEmail(), earliestTime));
-        }
-        return userLocations;
+    @GetMapping("/squads")
+    @Operation(description = "Returns all Squads of a User")
+    public List<UserBySquad> getSquads() {
+        return squadService.getSquadsFromUser(userService.getUserEmail());
     }
 
     @GetMapping("/squad-members-locations")
@@ -107,7 +121,6 @@ public class MemberController {
             for (UserBySquad user : squadService.getUsersInSquad(squad.getKey().getSquadId())) {
                 String userEmail =  user.getKey().getUserEmail();
                 if (!userEmails.contains(userEmail)) {
-                    System.out.println("Helo" + userEmail);
                     userLocations.addAll(gpsDataService.getGPSDataOf(userEmail, earliestTime));
                     if (!userEmailsInSquad.contains(userEmail)) {
                         userEmailsInSquad.add(userEmail);
@@ -117,12 +130,6 @@ public class MemberController {
             userEmails.addAll(userEmailsInSquad);
         }
         return userLocations;
-    }
-
-    @GetMapping("/squads")
-    @Operation(description = "Returns all squads of a User")
-    public List<UserBySquad> getSquads() {
-        return squadService.getSquadsFromUser(userService.getUserEmail());
     }
 
     @GetMapping("/chats")
@@ -135,10 +142,6 @@ public class MemberController {
         ArrayList<Chat> chats = new ArrayList<>();
 
         for (ChatByUser chatByUser : chatsByUser) {
-            System.out.println(chatByUser.getChatName());
-            System.out.println(chatByUser.getKey().getChatId());
-            System.out.println(chatByUser.getKey().getUserEmail());
-
             List<UserByChat> usersByChat = chatService.getUsersInChat(chatByUser.getKey().getChatId());
 
             List<Member> members = new ArrayList<>();
@@ -179,7 +182,7 @@ public class MemberController {
         for (String userEmail : userEmails) {
             messagingTemplate.convertAndSend("/topic/chatCreation/" + userEmail,  chat);
         }
-        return "created Succesfully";
+        return "\"created Succesfully\"";
 
     }
 
@@ -197,7 +200,7 @@ public class MemberController {
         
         Chat chat = chatService.putUserInChat(userEmail, chatId, chatName);
         messagingTemplate.convertAndSend("/topic/chatCreation/" + userEmail,  chat);
-        return "updated Succesfully";
+        return "\"updated Succesfully\"";
     }
 
     @GetMapping("chat/{chatId}/messages")
