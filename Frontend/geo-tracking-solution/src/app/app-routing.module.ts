@@ -18,7 +18,6 @@ import { ManageMembersComponent } from './components/user-group/manage-members/m
 
 const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [authGuard] },
-  //{ path: 'login', component: LoginComponent },
   {
     path: 'create', component: UserGroupComponent, canActivate: [authGuard], children: [
       { path: 'user', component: CreateUserComponent, data: { width: '100%', maxWidth: '500px' }, canActivate: [authGuard] },

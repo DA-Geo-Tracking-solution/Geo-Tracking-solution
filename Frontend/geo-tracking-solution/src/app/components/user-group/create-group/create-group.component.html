@@ -53,10 +53,11 @@
 
     <ng-scrollbar style="max-height: 300px; overflow-y: auto;">
         <div class="field" *ngFor="let user of users; let i = index">
-            <label class="label">{{ 'ADD.USER' | translate }}</label>
+            <label class="label">
+                {{ 'ADD.USER' | translate }}
+            </label>
             <div class="control has-icons-left">
-                <input class="input is-fullwidth" type="text" placeholder="{{ 'SEARCH.USER' | translate }}"
-                    (input)="onUserSearch($event,i)" />
+                <input class="input is-fullwidth" type="text" placeholder=" {{ 'SEARCH.USER' | translate }} " (input)="onUserSearch($event,i)" />
                 <span class="icon is-small is-left">
                     <fa-icon [icon]="faUser"></fa-icon>
                 </span>
@@ -76,7 +77,6 @@
         <div class="control">
             <button type="button" class="button is-light" (click)="addUserField()">
                 +
-                <!-- + {{ 'ADD.ANOTHER.USER' | translate }} -->
             </button>
         </div>
     </div>

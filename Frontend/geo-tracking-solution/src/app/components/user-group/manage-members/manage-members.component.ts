@@ -33,7 +33,7 @@ export class ManageMembersComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+ngOnInit(): void {
   this.restService.GET("member/group-members").then(observable => {
     observable.subscribe({
       next: (users) => {
