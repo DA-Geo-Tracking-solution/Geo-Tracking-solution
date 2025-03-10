@@ -44,32 +44,8 @@ export class ChatListComponent implements OnInit {
           this.chats.push(chat);
           this.filteredChats.push(chat);
         }
-        //this.messageService.init(this.chats);
-        //this.filteredChats = [...this.chats];
       );
     }
-
-    /*(await this.restService.GET("member/chats")).subscribe({
-      next: (chatData: any) => {
-        for (const chatObject of chatData) {
-          const chat = {
-            chatId: chatObject.chatId,
-            chatName: chatObject.chatName,
-            users: chatObject.members.map((user: any) => ({
-              name: `${user.firstname} ${user.lastname}`,
-              email: user.email
-            }))
-          };
-          this.messageService.addChat(chat);
-          this.chats.push(chat);
-          this.filteredChats.push(chat);
-        }
-        //this.messageService.init(this.chats);
-        //this.filteredChats = [...this.chats];
-      },
-      error: (e) => console.error('Error fetching chats', e),
-      complete: () => console.info('Complete fetching chats')
-    });*/
   }
 
   private waitForCondition(conditionFn: () => boolean, interval: number): Promise<void> {

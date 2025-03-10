@@ -20,7 +20,6 @@ export class ServerDataService {
       next: (v) =>  {
         for (const element of v) {
           callback(element);
-          console.log(element)
         }
       },
       error: (e) => console.error('Error fetching secure data', e),
@@ -30,26 +29,28 @@ export class ServerDataService {
    
     if (!this.websocketService.isConnected()) {
       this.websocketService.connect();
-      console.log("--------------------------------------------------------------")
+      console.log("------------------------------");
     }
     this.websocketService.subscribe(websocketTopic, (message: IMessage) => {
       const jsonData = JSON.parse(message.body);
-      console.log('Received JSON:', jsonData);
       callback(jsonData);
     });
-  
+  }
+
+  async getChatCreations(userEmail: string, callback: (Data: any) => void) {
+    this.getData(`member/chats`, `/topic/chatCreation/${userEmail}`, callback);
   }
 
   async getChatMessages(chatid: string, callback: (Data: any) => void) {
     this.getData(`member/chat/${chatid}/messages`, `/topic/chat/${chatid}`, callback);
   }
 
-  async getGeoLocationData(squadId: string, earliestTime: string, callback: (Data: any) => void) {
+  async getSquadMemberGeoLocationData(squadId: string, earliestTime: string, callback: (Data: any) => void) {
     this.getData(`member/squad-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation/squad/${squadId}`, callback);
   }
 
-  async getChatCreations(userEmail: string, callback: (Data: any) => void) {
-    this.getData(`member/chats`, `/topic/chatCreation/${userEmail}`, callback);
+  async getGroupMemberGeoLocationData(groupName: string, earliestTime: string, callback: (Data: any) => void) {
+    this.getData(`squadmaster/group-members-locations?earliestTime=${earliestTime}`, `/topic/geolocation/group/${groupName}`, callback);
   }
 
   close() {

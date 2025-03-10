@@ -1,0 +1,21 @@
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+  # data:
+  #   cassandra:
+  #     contact-points: cassandra
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework: DEBUG
+
+keycloak:
+  auth-server-url: http://${angular-client.hostname}:8081
+  realm: geo-tracking-solution
+  client-id: java-spring
+  client-secret: OySDKuu1HlxIW2c4Ptk4wOsfMZ8vljhb

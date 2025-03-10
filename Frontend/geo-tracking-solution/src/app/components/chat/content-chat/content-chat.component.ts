@@ -29,17 +29,9 @@ export class ContentChatComponent implements OnChanges {
     if (changes['chat']) {
 
       this.messages = [];
-      this.messageService.getMessages(this.chat.chatId, (message: ChatMessage)=>{
+      this.messageService.initCallback(this.chat.chatId, (message: ChatMessage)=>{
         this.messages.push(message);
       });
-
-      /*this.messages = [];
-      this.serverDataService.getChatMessages(this.chat.chatId, (data: any) => {
-        console.log(data);
-        if (data.sender && data.content && data.timestamp) {
-          this.messages.push(data);
-        }
-      });*/
     }
   }
 

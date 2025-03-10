@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
 import User from '../../classes/User';
 import 'leaflet-draw';
+import { AreaService } from '../area/area.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RasterMapService {
 
+  private users: User[] = [];
   private map!: L.Map;
   private rastermarkers: { [key: string]: L.Marker } = {};
   private userLocations: { [key: string]: [number, number][] } = {};
@@ -17,15 +19,17 @@ export class RasterMapService {
   //temporary to store coordinates from map should be pushed to backend
   private drawingCoordinates: any = [];
 
-  constructor() { }
+  constructor(private areaService: AreaService) { }
 
   setMap(map: L.Map): void {
     this.map = map;
   }
 
   drawUserMarkers(users: User[]) {
+    this.users = users;
     if (this.map) {
       for (const user of users) {
+        this.areaService.haveUserData(user, this.drawingCoordinates);
         if (this.rastermarkers[user.userEmail]) {
           this.rastermarkers[user.userEmail].setLatLng([user.location.latitude, user.location.longitude])
         } else {
@@ -210,6 +214,7 @@ export class RasterMapService {
       }
 
       if (data) {
+        this.areaService.haveDrawingData(this.users, data);
         this.drawingCoordinates.push(data);
       }
     });

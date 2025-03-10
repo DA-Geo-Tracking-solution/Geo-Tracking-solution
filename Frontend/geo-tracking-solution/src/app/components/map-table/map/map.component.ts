@@ -53,7 +53,26 @@ export class MapComponent {
 
   //draw new Lines and Markers when something changes
   ngOnChanges(changes: SimpleChanges): void {
-    this.changeMapType();
+    if (changes["selectedMap"]) {
+      this.changeMapType();
+    }
+  
+    if (changes["users"]) {
+      this.updateUser();
+    }
+  }
+
+  updateUser(): void {
+    switch (this._selectedMap) {
+      case 'vector':
+        this.vectorService.drawUserMarkers(this.users);
+        this.vectorService.drawUserLines(this.users);
+        break;
+      case 'raster':
+        this.rasterMapService.drawUserMarkers(this.users);
+        this.rasterMapService.drawUserLines(this.users);
+        break;
+    }
   }
 
   changeMapType(): void {
@@ -155,4 +174,5 @@ export class MapComponent {
 
     this.vectorService.setMap(this.map);
   }
+
 }

@@ -52,8 +52,8 @@ import { ManageMembersComponent } from './components/user-group/manage-members/m
 import { CostumErrorMessageComponent } from './components/costum-error-message/costum-error-message.component';
 
 // Funktion zur Initialisierung des KeycloakService
-export function kcFactory(KeycloakService: KeycloakService) {
-  return () => KeycloakService.init();
+export function kcFactory(keycloakService: KeycloakService) {
+  return () => keycloakService.init();
 }
 
 // HttpLoaderFactory für ngx-translate

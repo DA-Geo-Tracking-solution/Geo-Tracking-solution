@@ -65,7 +65,7 @@ public class GPSSender {
                             instant = Instant.now();
 
                             // Construct the message with the Instant timestamp (in UTC)
-                            String message = accessToken + ":" + sender + "," + instant.toString() + "," + longitude + "," + latitude+(i/100);
+                            String message = accessToken + ":" + sender + "," + instant.toString() + "," + longitude + "," + (Double.parseDouble(latitude)+(i*0.01));
 
                             // Publish the message
                             channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));

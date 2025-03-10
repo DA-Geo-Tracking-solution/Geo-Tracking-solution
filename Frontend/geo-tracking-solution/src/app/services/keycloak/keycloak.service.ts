@@ -49,8 +49,10 @@ export class KeycloakService {
       if (authenticated) {
         this._profile = (await this.keycloak?.loadUserProfile()) as UserProfile;
         this._profile.token = this._keycloak?.token;
+        this.refreshToken()
         return true;
       }
+      this.refreshToken();
     }
     return false;
   }
@@ -102,9 +104,9 @@ export class KeycloakService {
   hasRole(role: string): boolean {
     return this.roles.includes(role);
   }
-  isGroupMaster(): boolean {return this.hasRole('groupmaster');}
-  isSquadmaster(): boolean {return this.hasRole('squadmaster');}
-  isMember(): boolean {return (this.hasRole('member') || this.isSquadmaster() || this.isGroupMaster())}
+  isGroupMaster(): boolean {return this.hasRole('groupmaster')}
+  isSquadmaster(): boolean {return this.hasRole('squadmaster') || this.isGroupMaster()}
+  isMember(): boolean {return this.hasRole('member') || this.isSquadmaster() || this.isGroupMaster()}
   
   
   login() {

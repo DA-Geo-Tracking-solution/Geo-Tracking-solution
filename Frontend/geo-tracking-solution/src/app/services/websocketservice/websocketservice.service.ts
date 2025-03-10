@@ -20,11 +20,11 @@ export class WebsocketService {
     const token = this.keycloakService.profile?.token;
     if (token) {
       this.stompClient = new Client({
-        brokerURL: 'ws://localhost:8080/ws/geo-tracking-solution', // Update with your WebSocket endpoint
+        brokerURL: 'ws://localhost:8080/ws/geo-tracking-solution',
         connectHeaders: {
-          Authorization: `Bearer ${token}`, // Add JWT token in headers
+          Authorization: `Bearer ${token}`,
         },
-        debug: (str) => console.log(str),
+        //debug: (str) => console.log(str),
         reconnectDelay: 5000, // Automatically reconnect after 5 seconds
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
@@ -71,7 +71,7 @@ export class WebsocketService {
     }
   }
 
-  send(destination: string, body: any): void {
+  publish(destination: string, body: any): void {
     if (this.stompClient && this.stompClient.connected) {
       this.stompClient.publish({
         destination,
