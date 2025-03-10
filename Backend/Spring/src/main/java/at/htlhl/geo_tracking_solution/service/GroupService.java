@@ -1,7 +1,5 @@
 package at.htlhl.geo_tracking_solution.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,10 +13,6 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import at.htlhl.geo_tracking_solution.model.Role;
@@ -32,6 +26,14 @@ public class GroupService {
 
     @Value("${keycloak.realm}")
     private String realm;
+
+    
+    private final UserService userService;
+
+    @Autowired
+    public GroupService(UserService userService) {
+        this.userService = userService;
+    }
 
     public UserResource addUserToGroup(UserRepresentation user, GroupRepresentation group) throws Exception {
         RealmResource realmResource = keycloak.realm(realm);
@@ -47,7 +49,8 @@ public class GroupService {
     }
 
     public UserResource addUserToGroupByUseremail(String userEmail, GroupRepresentation group) throws Exception {
-        List<UserRepresentation> users = getGroupMembers().stream()
+
+        List<UserRepresentation> users = userService.getGroupMembers().stream()
         .filter(user -> user.getEmail().equals(userEmail))
         .collect(Collectors.toList());
         if (users.isEmpty()) {
@@ -66,7 +69,7 @@ public class GroupService {
         GroupsResource groupsResource = keycloak.realm(realm).groups();
 
         // Find the parent group
-        List<GroupRepresentation> groups = getUserGroups();
+        List<GroupRepresentation> groups = userService.getUserGroups();
         if (groups.isEmpty()) {
             throw new Exception("Invalid Request! User is in no group! >8[)");
         }
@@ -92,19 +95,6 @@ public class GroupService {
         return createdSubGroup;
     }
 
-    public List<GroupRepresentation> getSubGroupsOf(GroupRepresentation parentGroup) {
-            return parentGroup.getSubGroups();
-    }
-
-    public List<UserRepresentation> getGroupMembers() {
-        List<GroupRepresentation> groups = getUserGroups();
-        if (!groups.isEmpty()) {
-            String groupId = groups.get(0).getId();
-            return keycloak.realm(realm).groups().group(groupId).members();
-        }
-        return List.of();
-    }
-
     private List<RoleRepresentation> rolesByRoleNames(List<String> roleNames) {
         return keycloak.realm(realm).roles().list().stream()
                 .filter(role -> roleNames.contains(role.getName())).toList();
@@ -120,7 +110,7 @@ public class GroupService {
         }
         UserRepresentation user = users.get(0);
     
-        // Retrieve all groups for the user
+        // Retrieves all groups of the user
         List<GroupRepresentation> userGroups = keycloak.realm(realm).users().get(user.getId()).groups();
     
         if (userGroups.isEmpty()) {
@@ -134,12 +124,4 @@ public class GroupService {
         return getGroupNameFromUser(userEmail).equals(groupName);
     }
 
-    private String getUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (String) ((Jwt) authentication.getPrincipal()).getClaims().get(StandardClaimNames.SUB);
-    }
-
-    private List<GroupRepresentation> getUserGroups() {
-        return keycloak.realm(realm).users().get(getUserId()).groups();
-    }
 }

@@ -60,7 +60,6 @@ public class MemberController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    // Todo only if in same group
     @GetMapping("/user/{userEmail}")
     @Operation(description = "Returns data of specific User (not only users in the same group)")
     public UserRepresentation getUserByEmail(@PathVariable("userEmail") String userEmail) throws ResponseStatusException{
