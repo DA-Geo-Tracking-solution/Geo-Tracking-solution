@@ -53,7 +53,7 @@ public class GroupmasterController {
             if (memberObject != null && memberObject instanceof List) {
                 memberEmails = (List<String>) memberObject;
             }
-            List<UserRepresentation> groupmasterList = groupService.getGroupMembers().stream()
+            List<UserRepresentation> groupmasterList = userService.getGroupMembers().stream()
                 .filter(user -> user.getEmail().equals(groupmasterEmail))
                 .collect(Collectors.toList());
 

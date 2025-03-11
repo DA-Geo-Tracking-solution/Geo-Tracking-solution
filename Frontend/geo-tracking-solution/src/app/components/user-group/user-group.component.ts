@@ -30,7 +30,7 @@ export class UserGroupComponent {
 
   constructor(private themeService: ThemeService, private route: Router, private activatedRoute: ActivatedRoute, private cookieService: CookieSettingsService, private translateService: TranslateService, private keycloakService: KeycloakService) {
     this.translateService.use(this.cookieService.getLanguage());
-   }
+  }
 
 
   ngOnInit(): void {
@@ -78,6 +78,4 @@ export class UserGroupComponent {
     return this.activeTab == tab;
   }
 
-
 }
-

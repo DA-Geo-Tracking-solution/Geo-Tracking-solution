@@ -3,6 +3,7 @@ import { ThemeService } from '../../services/Theme/theme.service';
 import { CookieService } from 'ngx-cookie-service';
 import { TranslateService } from '@ngx-translate/core';
 import { CookieSettingsService } from '../../services/Cookies/cookie-settings.service';
+import { KeycloakService } from '../../services/keycloak/keycloak.service';
 
 @Component({
   selector: 'app-navigation-bar',
@@ -23,7 +24,7 @@ export class NavigationBarComponent implements AfterViewInit {
   currentTheme: string = 'system';
   navbarOpen: boolean = false;
 
-  constructor(private renderer: Renderer2, private themeService: ThemeService, private cookieService: CookieService, private translateService: TranslateService, private cookieSettingsService: CookieSettingsService) { 
+  constructor(private renderer: Renderer2, private themeService: ThemeService, private cookieService: CookieService, private translateService: TranslateService, private cookieSettingsService: CookieSettingsService, private keycloakService: KeycloakService) { 
     this.translateService.use(this.cookieSettingsService.getLanguage());
   }
 
@@ -38,6 +39,10 @@ export class NavigationBarComponent implements AfterViewInit {
       this.updateThemeIcons(theme);
       this.applyTheme(theme); // Wende das Theme an
     });
+  }
+
+  isGroupmaster(): boolean {
+    return this.keycloakService.isGroupMaster();
   }
 
   changeTheme(theme: string) {
