@@ -134,7 +134,6 @@ public class MemberController {
     @GetMapping("/chats")
     @Operation(description = "Returns all chats a user has in format { chatId, chatName, [member] }")
     public List<Chat> getChats() {
-        // Todo better Performance
         String userEmail = userService.getUserEmail();
         List<ChatByUser> chatsByUser = chatService.getChatsFromUser(userEmail);
 

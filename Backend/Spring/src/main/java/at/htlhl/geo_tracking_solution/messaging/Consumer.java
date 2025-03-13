@@ -1,22 +1,15 @@
 package at.htlhl.geo_tracking_solution.messaging;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.keycloak.representations.idm.GroupRepresentation;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.stereotype.Component;
 
-import at.htlhl.geo_tracking_solution.config.KeycloakJwtAuthenticationConverter;
 import at.htlhl.geo_tracking_solution.model.cassandra.GPSData;
 import at.htlhl.geo_tracking_solution.model.cassandra.UserBySquad;
 import at.htlhl.geo_tracking_solution.model.cassandra.GPSData.GPSDataKey;
@@ -25,9 +18,6 @@ import at.htlhl.geo_tracking_solution.service.GroupService;
 import at.htlhl.geo_tracking_solution.service.SquadService;
 import at.htlhl.geo_tracking_solution.service.UserService;
 
-import org.springframework.amqp.core.Queue;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 
 
