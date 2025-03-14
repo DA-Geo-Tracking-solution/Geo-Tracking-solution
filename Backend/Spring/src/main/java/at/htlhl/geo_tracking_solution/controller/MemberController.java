@@ -60,7 +60,6 @@ public class MemberController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    // Todo only if in same group
     @GetMapping("/user/{userEmail}")
     @Operation(description = "Returns data of specific User (not only users in the same group)")
     public UserRepresentation getUserByEmail(@PathVariable("userEmail") String userEmail) throws ResponseStatusException{
@@ -135,7 +134,6 @@ public class MemberController {
     @GetMapping("/chats")
     @Operation(description = "Returns all chats a user has in format { chatId, chatName, [member] }")
     public List<Chat> getChats() {
-        // Todo better Performance
         String userEmail = userService.getUserEmail();
         List<ChatByUser> chatsByUser = chatService.getChatsFromUser(userEmail);
 

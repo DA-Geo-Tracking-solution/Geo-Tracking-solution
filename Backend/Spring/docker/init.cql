@@ -51,74 +51,72 @@ CREATE TABLE IF NOT EXISTS users_by_chat (
 
 -- Insert into GPS Data Table
 INSERT INTO gps_data (user_email, timestamp, latitude, longitude)
-VALUES ('user1@example.com', '2024-12-01 10:00:00', 40.7128, -74.0060);
+VALUES ('felix@example.com', '2024-12-01 10:00:00', 40.7128, -74.0060);
 
 INSERT INTO gps_data (user_email, timestamp, latitude, longitude)
-VALUES ('user1@example.com', '2024-12-01 10:05:00', 40.7138, -74.0070);
+VALUES ('felix@example.com', '2024-12-01 10:05:00', 40.7138, -74.0070);
 
 INSERT INTO gps_data (user_email, timestamp, latitude, longitude)
-VALUES ('user1@example.com', '2024-12-01 10:10:00', 40.7148, -74.0080);
+VALUES ('felix@example.com', '2024-12-01 10:10:00', 40.7148, -74.0080);
 
 INSERT INTO gps_data (user_email, timestamp, latitude, longitude)
-VALUES ('testuser2@example.com', '2023-12-01 10:00:00', 34.0522, -118.2437);
+VALUES ('adrian@example', '2023-12-01 10:00:00', 34.0522, -118.2437);
 
 INSERT INTO gps_data (user_email, timestamp, latitude, longitude)
-VALUES ('user2@example.com', '2024-12-01 10:05:00', 34.0532, -118.2447);
+VALUES ('adrian@example', '2024-12-01 10:05:00', 34.0532, -118.2447);
 
 
 -- Insert into User by Squad Table
 INSERT INTO users_by_squad (squad_id, user_email)
-VALUES (11111111-1111-1111-1111-111111111111, 'user1@example.com');
+VALUES (11111111-1111-1111-1111-111111111111, 'felix@example.com');
 
 INSERT INTO users_by_squad (squad_id, user_email)
-VALUES (11111111-1111-1111-1111-111111111111, 'user2@example.com');
+VALUES (11111111-1111-1111-1111-111111111111, 'adrian@example.com');
 
 INSERT INTO users_by_squad (squad_id, user_email)
-VALUES (22222222-2222-2222-2222-222222222222, 'user3@example.com');
+VALUES (22222222-2222-2222-2222-222222222222, 'jonas@example.com');
 
 INSERT INTO users_by_squad (squad_id, user_email)
-VALUES (33333333-3333-3333-3333-333333333333, 'testuser@example.com');
+VALUES (33333333-3333-3333-3333-333333333333, 'benjamin@example.com');
 
-INSERT INTO users_by_squad (squad_id, user_email)
-VALUES (33333333-3333-3333-3333-333333333333, 'testuser2@example.com');
 
 
 -- Insert into Messages by Chat Table
 INSERT INTO messages_by_chat (chat_id, message_id, author_email, content, timestamp)
-VALUES (11111111-1111-1111-1111-111111111111, uuid(), 'user1@example.com', 'Hello, how are you?', '2024-12-01 10:00:00');
+VALUES (11111111-1111-1111-1111-111111111111, uuid(), 'felix@example.com', 'Hello, how are you?', '2024-12-01 10:00:00');
 
 INSERT INTO messages_by_chat (chat_id, message_id, author_email, content, timestamp)
-VALUES (11111111-1111-1111-1111-111111111111, uuid(), 'user2@example.com', 'I am good, thanks! And you?', '2024-12-01 10:05:00');
+VALUES (11111111-1111-1111-1111-111111111111, uuid(), 'adrian@example.com', 'I am good, thanks! And you?', '2024-12-01 10:05:00');
 
 INSERT INTO messages_by_chat (chat_id, message_id, author_email, content, timestamp)
-VALUES (11111111-1111-1111-1111-111111111111, uuid(), 'user1@example.com', 'I am doing well, thanks for asking!', '2024-12-01 10:10:00');
+VALUES (11111111-1111-1111-1111-111111111111, uuid(), 'felix@example.com', 'I am doing well, thanks for asking!', '2024-12-01 10:10:00');
 
 
 -- Insert into Chats by User Table
 INSERT INTO chats_by_user (user_email, chat_id, chat_name)
-VALUES ('user1@example.com', 11111111-1111-1111-1111-111111111111, 'Group Chat A');
+VALUES ('felix@example.com', 11111111-1111-1111-1111-111111111111, 'Group Chat A');
 
 INSERT INTO chats_by_user (user_email, chat_id, chat_name)
-VALUES ('user2@example.com', 11111111-1111-1111-1111-111111111111, 'Group Chat A');
+VALUES ('adrian@example.com', 11111111-1111-1111-1111-111111111111, 'Group Chat A');
 
 INSERT INTO chats_by_user (user_email, chat_id, chat_name)
-VALUES ('user1@example.com', 22222222-2222-2222-2222-222222222222, 'Group Chat B');
+VALUES ('felix@example.com', 22222222-2222-2222-2222-222222222222, 'Group Chat B');
 
 INSERT INTO chats_by_user (user_email, chat_id, chat_name)
-VALUES ('user3@example.com', 33333333-3333-3333-3333-333333333333, 'Group Chat B');
+VALUES ('benjamin@example.com', 33333333-3333-3333-3333-333333333333, 'Group Chat B');
 
 
 -- Insert into Users by Chat Table
 INSERT INTO users_by_chat (chat_id, user_email)
-VALUES (11111111-1111-1111-1111-111111111111, 'user1@example.com');
+VALUES (11111111-1111-1111-1111-111111111111, 'felix@example.com');
 
 INSERT INTO users_by_chat (chat_id, user_email)
-VALUES (11111111-1111-1111-1111-111111111111, 'user2@example.com');
+VALUES (11111111-1111-1111-1111-111111111111, 'adrian@example.com');
 
 INSERT INTO users_by_chat (chat_id, user_email)
-VALUES (22222222-2222-2222-2222-222222222222, 'user1@example.com');
+VALUES (22222222-2222-2222-2222-222222222222, 'felix@example.com');
 
 INSERT INTO users_by_chat (chat_id, user_email)
-VALUES (33333333-3333-3333-3333-333333333333, 'user3@example.com');
+VALUES (33333333-3333-3333-3333-333333333333, 'benjamin@example.com');
 
 

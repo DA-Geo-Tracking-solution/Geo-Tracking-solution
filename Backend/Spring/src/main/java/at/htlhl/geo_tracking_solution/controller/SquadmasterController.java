@@ -1,13 +1,11 @@
 package at.htlhl.geo_tracking_solution.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 

@@ -24,7 +24,7 @@ public class GPSSender {
         String line;
         String csvSeparator = ",";
 
-        String username = "test2";
+        String username = "felix-ebertz";
         String password = "password";
 
         ConnectionFactory factory = new ConnectionFactory();

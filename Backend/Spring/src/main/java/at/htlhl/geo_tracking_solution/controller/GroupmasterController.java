@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import at.htlhl.geo_tracking_solution.model.Role;
-import at.htlhl.geo_tracking_solution.model.keycloak.Group;
 import at.htlhl.geo_tracking_solution.model.keycloak.User;
 import at.htlhl.geo_tracking_solution.service.GroupService;
 import at.htlhl.geo_tracking_solution.service.UserService;
@@ -53,7 +52,7 @@ public class GroupmasterController {
             if (memberObject != null && memberObject instanceof List) {
                 memberEmails = (List<String>) memberObject;
             }
-            List<UserRepresentation> groupmasterList = groupService.getGroupMembers().stream()
+            List<UserRepresentation> groupmasterList = userService.getGroupMembers().stream()
                 .filter(user -> user.getEmail().equals(groupmasterEmail))
                 .collect(Collectors.toList());
 

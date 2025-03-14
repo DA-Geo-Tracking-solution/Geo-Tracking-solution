@@ -18,4 +18,4 @@ keycloak:
   auth-server-url: http://${angular-client.hostname}:8081
   realm: geo-tracking-solution
   client-id: java-spring
-  client-secret: OySDKuu1HlxIW2c4Ptk4wOsfMZ8vljhb
+  client-secret: 9Av5VRfP4yG7fJeIVYqmBOk2KrRBVkzw
