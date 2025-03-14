@@ -63,7 +63,7 @@
                 <a class="navbar-item" routerLink="/settings/user">
                     {{ 'SETTINGS.TITLE' | translate }}
                 </a>
-                <a class="navbar-item">
+                <a class="navbar-item" (click)="logOut()">
                     Log out
                 </a>
                 <hr class="navbar-divider">
