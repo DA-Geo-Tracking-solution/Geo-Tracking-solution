@@ -95,7 +95,7 @@ public class SquadmasterController {
 
         try {
             squadService.removeUserFromSquad(userEmail, squadId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to remove user from squad", e);
         }

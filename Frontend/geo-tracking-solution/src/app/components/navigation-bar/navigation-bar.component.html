@@ -23,11 +23,9 @@
                 <img [src]="chatIcon" alt="Contact Icon"> {{ 'NAVIGATION.CHAT' | translate }}
             </a>
 
-            <div *ngIf="isGroupmaster()">
-                <a class="navbar-item" routerLink="/create/user">
-                    <img [src]="createUserIcon" alt="Create User Icon"> {{ 'NAVIGATION.CREATE' | translate }}
-                </a>
-            </div>
+            <a class="navbar-item" routerLink="/create/user" *ngIf="isGroupmaster()">
+                <img [src]="createUserIcon" alt="Create User Icon"> {{ 'NAVIGATION.CREATE' | translate }}
+            </a>
 
             <a class="navbar-item" routerLink="/map">
                 <img [src]="mapIcon" alt="Map Icon"> {{ 'NAVIGATION.MAP' | translate }}

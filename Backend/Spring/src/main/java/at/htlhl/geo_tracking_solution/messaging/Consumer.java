@@ -89,7 +89,7 @@ public class Consumer {
                 System.out.println("/topic/geolocation/squad/" + userBySquad.getKey().getSquadId());
                 messagingTemplate.convertAndSend("/topic/geolocation/squad/" + userBySquad.getKey().getSquadId(), gpsData);
             }
-            messagingTemplate.convertAndSend("/topic/geolocation/group/" + groupService.getGroupNameFromUser(userEmail), gpsData);
+            messagingTemplate.convertAndSend("/topic/geolocation/group/" + groupService.getGroupPathFromUser(userEmail), gpsData);
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
         }

@@ -42,7 +42,7 @@ public class GroupService {
         List<GroupRepresentation> currentGroups = userResource.groups();
         for (GroupRepresentation currentGroup : currentGroups) {
             userResource.leaveGroup(currentGroup.getId());
-            System.out.println("User removed from group: " + group.getName());
+            System.out.println("User removed from group: " + currentGroup.getPath());
         }
         userResource.joinGroup(group.getId());
         return userResource;
@@ -73,12 +73,9 @@ public class GroupService {
         if (groups.isEmpty()) {
             throw new Exception("Invalid Request! User is in no group! >8[)");
         }
-        GroupRepresentation parentGroup = groupsResource.groups().stream()
-            .filter(group -> group.getName().equals(groups.get(0).getName())).findFirst()
-            .orElseThrow(() -> new Exception("Parent group does not exist!"));
 
         // Create a new subgroup
-        GroupResource parentGroupResource = groupsResource.group(parentGroup.getId());
+        GroupResource parentGroupResource = groupsResource.group(groups.get(0).getId());
         if (parentGroupResource.getSubGroups(0, null, true).stream().anyMatch(subGroup -> subGroup.getName().equals(groupName))) {
             throw new Exception("Subgroup already exists!");
         }
@@ -100,7 +97,7 @@ public class GroupService {
                 .filter(role -> roleNames.contains(role.getName())).toList();
     }
 
-    public String getGroupNameFromUser(String userEmail) throws Exception {
+    public String getGroupPathFromUser(String userEmail) throws Exception {
         // Search for the user by email
         List<UserRepresentation> users = keycloak.realm(realm)
                 .users()
@@ -117,11 +114,11 @@ public class GroupService {
             throw new Exception("User with email " + userEmail + " is not in any group.");
         }
 
-        return userGroups.get(0).getName();
+        return userGroups.get(0).getPath();
     }
 
-    public boolean isUserInGroup(String groupName, String userEmail) throws Exception {
-        return getGroupNameFromUser(userEmail).equals(groupName);
+    public boolean isUserInGroup(String groupPath, String userEmail) throws Exception {
+        return getGroupPathFromUser(userEmail).equals(groupPath);
     }
 
 }

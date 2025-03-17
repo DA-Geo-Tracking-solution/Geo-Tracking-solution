@@ -65,7 +65,6 @@ public class SquadService {
         }
         try {
             // Inserts only if uuid exist else throws error
-
             squadRepository.insertIfNotExists(squadId, userEmail);
 
         } catch (Exception e) {
