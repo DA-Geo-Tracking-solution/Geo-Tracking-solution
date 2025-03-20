@@ -66,3 +66,19 @@ th.mat-sort-header-sorted {
 .light-theme ::ng-deep .p-splitter-gutter {
     background-color: white;
 }
+
+.group-header {
+    font-weight: bold;
+    vertical-align: middle;
+    text-align: center;
+  }
+  
+  .separator-row td {
+    height: 10px;
+    border: none;
+  }
+  
+  .group-first {
+    border-top: 2px solid;
+  }
+  

@@ -8,24 +8,42 @@ import { RestService } from '../REST/rest.service';
 })
 export class AreaService {
 
-  private usersindrawings: { [key: number]: [User[], string] } = [];
+  private _usersindrawings: { [key: number]: [User[], string] } = [];
 
-  constructor(private restService: RestService) { }
+  public get usersindrawings(){return this._usersindrawings};
+
+  constructor(private restService: RestService) { 
+    this._usersindrawings = {
+      1: [
+        [
+          { userEmail: 'alice@example.com', location: { latitude: 40.7128, longitude: -74.0060 } },
+          { userEmail: 'charlie@example.com', location: { latitude: 51.5074, longitude: -0.1278 } }
+        ],
+        'Group A'
+      ],
+      2: [
+        [
+          { userEmail: 'bob@example.com', location: { latitude: 34.0522, longitude: -118.2437 } }
+        ],
+        'Group B'
+      ]
+    };
+  }
 
   haveUserData(userdata: User, multibledrawingdata: any) {
     for (const singledrawingdata of multibledrawingdata) {
       if (singledrawingdata.type === "Polygon") {
         const index = multibledrawingdata.indexOf(singledrawingdata);
         if (this.calculateInPolygon([userdata.location.latitude, userdata.location.longitude], singledrawingdata.coordinates)) {
-          if (!this.usersindrawings[index][0].some(user => user.userEmail === userdata.userEmail)) {
-            this.usersindrawings[index][0].push(userdata);
+          if (!this._usersindrawings[index][0].some(user => user.userEmail === userdata.userEmail)) {
+            this._usersindrawings[index][0].push(userdata);
             this.userInDrawing(userdata.userEmail, index);
           }
           //check, if user alredy in polygon
           //if not add and userInDrawing()
         } else {
-          if (this.usersindrawings[index][0].some(user => user.userEmail === userdata.userEmail)) {
-            this.usersindrawings[index][0] = this.usersindrawings[index][0].filter(user => user.userEmail !== userdata.userEmail);
+          if (this._usersindrawings[index][0].some(user => user.userEmail === userdata.userEmail)) {
+            this._usersindrawings[index][0] = this._usersindrawings[index][0].filter(user => user.userEmail !== userdata.userEmail);
             this.userOutDrawing(userdata.userEmail, index);
           }
           //check, if user was in polygon
@@ -50,17 +68,17 @@ export class AreaService {
           allUsersInDrawing.push(users[index]);
         }
       }
-      console.log(Object.keys(this.usersindrawings).length)
-      console.log(this.usersindrawings[Object.keys(this.usersindrawings).length])
+      console.log(Object.keys(this._usersindrawings).length)
+      console.log(this._usersindrawings[Object.keys(this._usersindrawings).length])
 
-      const index = Object.keys(this.usersindrawings).length
-      this.usersindrawings[index] = [[], ""];
-      this.usersindrawings[index][0] = allUsersInDrawing;
+      const index = Object.keys(this._usersindrawings).length
+      this._usersindrawings[index] = [[], ""];
+      this._usersindrawings[index][0] = allUsersInDrawing;
       const userEmails = allUsersInDrawing.map(userInDrawing => userInDrawing.userEmail);
       console.log("post squadmaster/squad")
       this.restService.POST(`squadmaster/squad`, userEmails).then(observable => {
         observable.subscribe({
-          next: (uuid) => {this.usersindrawings[index][1] = uuid; console.log(uuid)},
+          next: (uuid) => {this._usersindrawings[index][1] = uuid; console.log(uuid)},
           error: (err) => console.error("Error:", err)
         });
       });
@@ -121,7 +139,7 @@ export class AreaService {
 
   userInDrawing(userEmail: string, drawing: number) {
     console.log(userEmail + " went into " + drawing)
-    const uuid = this.usersindrawings[drawing][1];
+    const uuid = this._usersindrawings[drawing][1];
     this.restService.POST(`squadmaster/${uuid}/users`, userEmail).then(observable => {
       observable.subscribe({
         next: () => console.log("Successfully added User to Squad! ;)"),
@@ -131,7 +149,7 @@ export class AreaService {
   }
   userOutDrawing(userEmail: string, drawing: any) {
     console.log(userEmail + " went out of " + drawing)
-    const uuid = this.usersindrawings[drawing][1];
+    const uuid = this._usersindrawings[drawing][1];
     this.restService.DELETE(`squadmaster/${uuid}/users/${userEmail}`).then(observable => {
       observable.subscribe({
         next: () => console.log("Successfully removed User from Squad! ;)"),
@@ -139,4 +157,6 @@ export class AreaService {
       });
     });
   }
+
+
 }

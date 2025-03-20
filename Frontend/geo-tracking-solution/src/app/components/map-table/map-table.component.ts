@@ -9,6 +9,7 @@ import { ServerDataService } from '../../services/server-data/server-data.servic
 import { MatSort } from '@angular/material/sort';
 import { RestService } from '../../services/REST/rest.service';
 import { KeycloakService } from '../../services/keycloak/keycloak.service';
+import { AreaService } from '../../services/area/area.service';
 
 @Component({
   selector: 'app-map-table',
@@ -19,6 +20,10 @@ export class MapTableComponent implements OnInit {
   users: User[] = [];
 
   displayedColumns: string[] = ['username', 'longitude', 'latitude'];
+
+  newTablesource: { [key: number]: [User[], string] } = {};
+
+  groupedTableSource: any[] = [];
 
   tableSource!: MatTableDataSource<User>;
   @ViewChild(MatSort) sort!: MatSort;
@@ -36,7 +41,7 @@ export class MapTableComponent implements OnInit {
   ];
 
   constructor(private themeService: ThemeService, private cookieService: CookieSettingsService, private translateService: TranslateService, 
-    private serverDataService: ServerDataService, private restService: RestService, private keycloakService: KeycloakService) {
+    private serverDataService: ServerDataService, private restService: RestService, private keycloakService: KeycloakService, private areaService: AreaService) {
     this.translateService.use(this.cookieService.getLanguage());
   }
 
@@ -101,6 +106,8 @@ export class MapTableComponent implements OnInit {
       userMap.set(user.userEmail, user);
     });
     this.tableSource.data = Array.from(userMap.values());
+    this.newTablesource = this.areaService.usersindrawings
+    this.groupData();
   }
 
 
@@ -108,5 +115,13 @@ export class MapTableComponent implements OnInit {
   changeMapType(selectedMap: string) {
     this.selectedMap = selectedMap;
     this.updateTableSource();
+  }
+
+  groupData() {
+    this.groupedTableSource = Object.entries(this.newTablesource).map(([key, value]) => ({
+      groupName: value[1], // Grouping criteria (e.g., "Group A", "Group B")
+      users: value[0] // Array of users
+    }));
+    console.log(this.groupedTableSource)
   }
 }

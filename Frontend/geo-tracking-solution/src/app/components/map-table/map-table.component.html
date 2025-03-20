@@ -1,9 +1,11 @@
 <app-navigation-bar />
 
-<div [attr.data-theme]="currentTheme" class="full-height" [ngClass]="{'dark-theme': currentTheme === 'dark', 'light-theme': currentTheme === 'light'}">
+<div [attr.data-theme]="currentTheme" class="full-height"
+    [ngClass]="{'dark-theme': currentTheme === 'dark', 'light-theme': currentTheme === 'light'}">
     <p-splitter [panelSizes]="[50,50]" [minSizes]="[30,30]" [style]="{ height: '100%' }" styleClass="mb-5">
         <ng-template pTemplate>
-            <div class="col" [ngClass]="{'dark-theme': currentTheme === 'dark', 'light-theme': currentTheme === 'light'}">
+            <div class="col"
+                [ngClass]="{'dark-theme': currentTheme === 'dark', 'light-theme': currentTheme === 'light'}">
                 <div class="table-responsive">
                     <nav class="navbar navbar-color">
                         <div class="navbar-brand" style="display: flex; align-items: center; padding-left: 1rem;">
@@ -27,6 +29,7 @@
                         </div>
                     </nav>
 
+                    <!--
                     <table mat-table [dataSource]="tableSource" matSort class="table"
                         [ngClass]="{'dark-theme': currentTheme === 'dark', 'light-theme': currentTheme === 'light'}">
                         <ng-container matColumnDef="username">
@@ -44,6 +47,33 @@
 
                         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table> 
+                    Table Body -->
+                    <table class="table"
+                        [ngClass]="{'dark-theme': currentTheme === 'dark', 'light-theme': currentTheme === 'light'}">
+                        <thead>
+                            <tr>
+                                <th>{{ 'MAP.USERNAME' | translate }}</th>
+                                <th>{{ 'MAP.LATITUDE' | translate }}</th>
+                                <th>{{ 'MAP.LONGITUDE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngFor="let group of groupedTableSource">
+                                <!-- Group Header Row -->
+                                <tr class="group-header">
+                                    <td colspan="3" style="text-align: left; padding-left: 20px; padding-top: 20px;">
+                                        <strong>{{ group.groupName }}</strong>
+                                    </td>
+                                </tr>
+                                <!-- User Rows -->
+                                <tr *ngFor="let user of group.users">
+                                    <td>{{ user.userEmail }}</td>
+                                    <td>{{ user.location.latitude }}</td>
+                                    <td>{{ user.location.longitude }}</td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
                     </table>
                 </div>
             </div>
