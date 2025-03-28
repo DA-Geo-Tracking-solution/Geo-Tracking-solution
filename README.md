@@ -62,6 +62,3 @@ Der Test-Client publisht sogleich GPS Daten der User im Intervall von einer Seku
 ## 📚 Lizenz
 Dieses Projekt steht unter der MIT-Lizenz. Weitere Details findest du in der Datei `LICENSE`.
 
----
-Falls du noch zusätzliche Details möchtest (z. B. API-Dokumentation oder spezifische Umgebungsvariablen), lass es mich wissen! 🚀
-
