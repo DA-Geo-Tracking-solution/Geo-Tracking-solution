@@ -36,9 +36,8 @@ Dies startet die Cassandra-Datenbank und den Keycloak-Server als Container. Die 
 
 ### 4. Backend starten
 ```sh
-cd Backend
+cd Backend/Spring
 mvn spring-boot:run
-
 ```
 Das Backend ist dann unter `http://localhost:8080/` erreichbar.
 
