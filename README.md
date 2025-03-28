@@ -42,9 +42,6 @@ Dies startet die Cassandra-Datenbank und den Keycloak-Server als Container. Die 
 - **Backend**: Änderungen am Spring Boot-Backend können per `mvn spring-boot:run` direkt getestet werden.
 - **Docker**: Falls sich Konfigurationen der Datenbank oder Keycloak ändern, muss `docker-compose down && docker-compose up -d` ausgeführt werden.
 
-## 👥 Beitrag leisten
-Pull Requests sind willkommen! Bitte erstelle ein Issue, bevor du größere Änderungen vornimmst.
-
 ## 📚 Lizenz
 Dieses Projekt steht unter der MIT-Lizenz. Weitere Details findest du in der Datei `LICENSE`.
 
