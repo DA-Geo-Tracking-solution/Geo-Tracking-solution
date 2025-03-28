@@ -19,12 +19,13 @@ ng serve
 ```
 Das Frontend ist dann unter `http://localhost:4200/` erreichbar.
 
-### 2. Backend starten
+### 2. Kartenserver starten
 ```sh
-cd Backend
-./mvnw spring-boot:run
+cd Backend/MapServer
+npm install -g tileserver-gl@22.0.1
+tileserver-gl -p 8082
 ```
-Das Backend ist dann unter `http://localhost:8080/` erreichbar.
+Dies startet den Kartenserver. Eine `.mbtiles`-Datei sollte sich in dem Pfad `Backend/MapServer/` befinden.
 
 ### 3. Datenbank und Keycloak mit Docker starten
 ```sh
@@ -32,6 +33,23 @@ cd Backend/Spring/docker
 docker-compose up -d
 ```
 Dies startet die Cassandra-Datenbank und den Keycloak-Server als Container. Die `docker-compose.yml`-Datei befindet sich unter `Backend/Spring/docker/docker-compose.yml`.
+
+### 4. Backend starten
+```sh
+cd Backend
+mvn spring-boot:run
+
+```
+Das Backend ist dann unter `http://localhost:8080/` erreichbar.
+
+### 5. Test-Client Starten
+```sh
+cd Backend/rabbitmq/publisher
+mvn clean package
+mvn clean compile exec:java
+```
+Der Test-Client publisht sogleich GPS Daten der User im Intervall von einer Sekunde.
+
 
 ## 🔎 Verwendung
 - Nach dem Start können Nutzer sich über das Frontend authentifizieren (via Keycloak) und Geo-Daten verwalten.
