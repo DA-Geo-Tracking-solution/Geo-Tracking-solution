@@ -65,8 +65,8 @@ public class UserService {
         if (groups.isEmpty()) {
             return "Invalid Request! User is in no group! >8[)";
         }
-        List<String> groupNames = List.of(groups.get(0).getName());
-        user.setGroups(groupNames);
+        List<String> groupPaths = List.of(groups.get(0).getPath());
+        user.setGroups(groupPaths);
 
         Response response = keycloak.realm(realm).users().create(user);
         addRolesToUser(user.getEmail(), Role.Member.getAsList());

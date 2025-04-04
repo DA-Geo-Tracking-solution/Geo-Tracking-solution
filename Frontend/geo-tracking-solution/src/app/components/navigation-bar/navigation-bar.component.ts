@@ -105,4 +105,9 @@ export class NavigationBarComponent implements AfterViewInit {
   toggleNavbar() {
     this.navbarOpen = !this.navbarOpen;
   }
+
+  logOut() {
+    this.keycloakService.logout();
+  }
+
 }

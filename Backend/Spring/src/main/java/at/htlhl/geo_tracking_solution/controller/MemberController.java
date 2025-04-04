@@ -82,11 +82,11 @@ public class MemberController {
     @GetMapping("/group")
     @Operation(description = "Returns the Group of a User")
     public String getGroup() throws ResponseStatusException{
-        List<String> groupNames = userService.getUserGroups().stream()
-            .map(GroupRepresentation::getName).collect(Collectors.toList());
+        List<String> groupPaths = userService.getUserGroups().stream()
+            .map(GroupRepresentation::getPath).collect(Collectors.toList());
 
-        if (!groupNames.isEmpty()) {
-            return "\"" + groupNames.get(0) + "\"";
+        if (!groupPaths.isEmpty()) {
+            return "\"" + groupPaths.get(0) + "\"";
         } else {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is in no Group");
         }

@@ -123,7 +123,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
             }
         } else if (destination != null && destination.startsWith("/topic/geolocation/group/")) {
-            String groupName = destination.substring(25);
+            String groupPath = destination.substring(25);
 
             UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor
                     .getUser();
@@ -131,7 +131,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 boolean hasRequiredRole = auth.getAuthorities().stream()
                 .anyMatch(role -> role.getAuthority().equals("ROLE_groupmaster") || role.getAuthority().equals("ROLE_squadmaster"));
 
-                if (!hasRequiredRole || !groupService.isUserInGroup(groupName, (String) auth.getPrincipal())) {
+                if (!hasRequiredRole || !groupService.isUserInGroup(groupPath, (String) auth.getPrincipal())) {
                     throw new AuthenticationException("User not authorized to subscribe to " + destination) {};
                 }
             } catch (Exception e) {
