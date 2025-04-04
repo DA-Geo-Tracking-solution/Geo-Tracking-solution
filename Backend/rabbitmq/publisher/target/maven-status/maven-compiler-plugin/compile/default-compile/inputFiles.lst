@@ -1,2 +1,1 @@
-/home/felix/Schulordner_HTL/DIPLO/Eviden-Geo-Tracking-solution/Backend/backend-prototype/rabbitmqpublisher/publisher/src/main/java/htl/hl/GPSSender.java
-/home/felix/Schulordner_HTL/DIPLO/Eviden-Geo-Tracking-solution/Backend/backend-prototype/rabbitmqpublisher/publisher/src/main/java/htl/hl/KeycloakUtils.java
+/home/felix/Schulordner_HTL/DIPLO/Geo-Tracking-solution/Backend/rabbitmq/publisher/src/main/java/htl/hl/GPSSender.java
